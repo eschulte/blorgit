@@ -1,0 +1,10 @@
+#+TITLE: blorgit (blog powered by org-mode and git)
+
+* design
+
+Thinking of using [[http://github.com/bmizerany/sinatra/tree/master][sinatra]] for the framework, [[http://github.com/eschulte/active_file/tree/master][active_file]] for object
+persistence, [[http://github.com/eschulte/acts_as_git/tree/master][acts_as_git]] for the git interface, and [[http://github.com/eschulte/acts_as_org/tree/master][acts_as_org]] for
+the git publishing.
+
+The overriding goal will be simplicity.
+
