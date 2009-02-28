@@ -8,3 +8,9 @@ the git publishing.
 
 The overriding goal will be simplicity.
 
+* notes
+
+** sinatra
+- [[http://sinatra.rubyforge.org/book.html#partials][sinatra-book]]
+- [[http://github.com/bmizerany/sinatra/tree/master][git-hub/sinatra]]
+

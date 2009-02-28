@@ -1,0 +1,9 @@
+[submodule "backend/active_file"]
+	path = backend/active_file
+	url = git://github.com/eschulte/active_file.git
+[submodule "backend/acts_as_org"]
+	path = backend/acts_as_org
+	url = git://github.com/eschulte/acts_as_org.git
+[submodule "backend/acts_as_git"]
+	path = backend/acts_as_git
+	url = git://github.com/eschulte/acts_as_git.git
