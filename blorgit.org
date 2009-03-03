@@ -9,8 +9,16 @@ the git publishing.
 The overriding goal will be simplicity.
 
 * notes
-
 ** sinatra
-- [[http://sinatra.rubyforge.org/book.html#partials][sinatra-book]]
-- [[http://github.com/bmizerany/sinatra/tree/master][git-hub/sinatra]]
+- [[http://sinatra.rubyforge.org/book.html][sinatra-book]]
+- [[http://github.com/sinatra/sinatra/tree/master][git-hub/sinatra]]
 
+* tasks [0/4]
+** TODO setup dir listing
+** TODO setup a global object with title/description etc...
+** TODO optionally read sidebar/title info from template files
+** TODO users
+
+* dict
+
+ LocalWords:  sinatra

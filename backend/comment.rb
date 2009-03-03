@@ -34,7 +34,7 @@ RAW
   # parse text returning a tree of nested comments
   def self.parse(text)
     comments = []
-    while (text.match(/(^\*.*?\n)\*/m) or text.match(/(^\*.*\n)/m))
+    while (text and (text.match(/(^\*.*?\n)\*/m) or text.match(/(^\*.*\n)/m)))
       comments << Comment.new($1)
       text = text[$~.end(1)..-1]
     end
