@@ -4,6 +4,3 @@
 [submodule "backend/acts_as_org"]
 	path = backend/acts_as_org
 	url = git://github.com/eschulte/acts_as_org.git
-[submodule "backend/acts_as_git"]
-	path = backend/acts_as_git
-	url = git://github.com/eschulte/acts_as_git.git
