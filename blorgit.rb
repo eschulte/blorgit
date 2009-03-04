@@ -31,6 +31,20 @@ get(/^\/(.*)?$/) do
   end
 end
 
+post(/^\/(.*)?$/) do
+  path, format = split_format(params[:captures].first)
+  redirect('/.sorry') unless params[:checkout] == params[:captca]
+  if @blog = Blog.find(path)
+    @blog.add_comment(Comment.build(2, params[:name], params[:title], params[:comment]))
+    @blog.save
+    redirect(path_for(@blog))
+  else
+    pass
+  end
+end
+
+get('/.sorry') { "Sorry, that's the wrong answer..." }
+
 # Helpers
 #--------------------------------------------------------------------------------
 
@@ -44,9 +58,7 @@ helpers do
   
   def split_format(url) url.match(/(.+)\.(.+)/) ? [$1, $2] : [url, 'html'] end
 
-  def path_for(blog, action = :show, options ={})
-    File.join('/', (action == :edit) ? '.edit/' : '', extension(blog.path, (options[:format] or nil)))
-  end
+  def path_for(blog, options ={}) File.join('/', extension(blog.path, (options[:format] or nil))) end
   
   def show(blog, options={}) haml("%a{ :href => '#{path_for(blog)}' } #{blog.title}", :layout => false) end
 
@@ -54,6 +66,34 @@ helpers do
   
   def extension(path, format = nil) (path.match("^(.+)\\.(.+?)$") ? $1 : path) + (format or '') end
 
+  def time_ago(from_time)
+    to_time = Time.now
+    distance_in_minutes = (((to_time - from_time.to_time).abs)/60).round
+    distance_in_seconds = ((to_time - from_time.to_time).abs).round
+
+    case distance_in_minutes
+    when 0..1
+      return (distance_in_minutes == 0) ? 'less than a minute' : '1 minute' unless include_seconds
+      case distance_in_seconds
+      when 0..4   then 'less than 5 seconds'
+      when 5..9   then 'less than 10 seconds'
+      when 10..19 then 'less than 20 seconds'
+      when 20..39 then 'half a minute'
+      when 40..59 then 'less than a minute'
+      else             '1 minute'
+      end
+
+    when 2..44           then "#{distance_in_minutes} minutes"
+    when 45..89          then 'about 1 hour'
+    when 90..1439        then "about #{(distance_in_minutes.to_f / 60.0).round} hours"
+    when 1440..2879      then '1 day'
+    when 2880..43199     then "#{(distance_in_minutes / 1440).round} days"
+    when 43200..86399    then 'about 1 month'
+    when 86400..525599   then "#{(distance_in_minutes / 43200).round} months"
+    when 525600..1051199 then 'about 1 year'
+    else                      "over #{(distance_in_minutes / 525600).round} years"
+    end
+  end
 end
 
 # HAML Templates (http://haml.hamptoncatlin.com/)
@@ -77,7 +117,7 @@ __END__
 %ul
 - @entries.each do |entry|
   %li
-    %a{ :href => File.join(@dir, entry) }= entry
+    %a{ :href => File.join(@dir, extension(entry)) }= entry
 
 @@ titlebar
 #title
@@ -94,21 +134,45 @@ __END__
 #comments= render :haml, :comments, :locals => {:comments => @blog.comments}, :layout => false
 
 @@ comments
-%label= "Comments (#{comments.size})"
-%ul
-- comments.each do |comment|
-  %li#comment
-    %p
-      %label title
-      comment.title
-    %p
-      %label author
-      comment.author
-    %p
-      %label date
-      comment.date
-    %p
-      %label body
-      comment.body
+#existing_commment
+  %label= "Comments (#{comments.size})"
+  %ul
+  - comments.each do |comment|
+    %li
+      %ul
+        %li
+          %label title
+          = comment.title
+        %li
+          %label author
+          = comment.author
+        %li
+          %label date
+          = time_ago(comment.date) + " ago"
+        %li
+          %label comment
+          %div= comment.body
+#new_comment
+  %label Post a new Comment
+  %form{ :action => path_for(@blog), :method => :post }
+    - equation = "#{rand(10)} #{['+', '*', '-'].sort_by{rand}.first} #{rand(10)}"
+    %ul
+      %li
+        %label name
+        %input{ :id => :name, :name => :name, :type => :text }
+      %li
+        %label title
+        %input{ :id => :title, :name => :title, :type => :text }
+      %li
+        %label comment
+        %textarea{ :id => :comment, :name => :comment, :rows => 8, :cols => 68 }
+      %li
+        %input{ :id => :checkout, :name => :checkout, :type => :hidden, :value => eval(equation) }
+        %span
+        %p just to ensure you're a person, please solve the following
+        = equation + " = "
+        %input{ :id => :captca, :name => :captca, :type => :text }
+      %li
+        %input{ :id => :post, :name => :post, :value => :post, :type => :submit }
 
 -#end-of-file
