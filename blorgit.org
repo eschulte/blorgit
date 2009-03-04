@@ -12,6 +12,7 @@ The overriding goal will be simplicity.
 ** sinatra
 - [[http://sinatra.rubyforge.org/book.html][sinatra-book]]
 - [[http://github.com/sinatra/sinatra/tree/master][git-hub/sinatra]]
+- [[http://www.sinatrarb.com/faq.html][sinatra-faq]]
 
 * tasks [0/4]
 ** TODO setup dir listing
@@ -21,4 +22,4 @@ The overriding goal will be simplicity.
 
 * dict
 
- LocalWords:  sinatra
+ LocalWords:  sinatra faq
