@@ -18,11 +18,11 @@ The overriding goal will be simplicity.
 **** send_data
 http://sinatra.lighthouseapp.com/projects/9779/tickets/143-send_data-no-longer-present
 
-* tasks [0/4]
-** TODO setup dir listing
-** TODO setup a global object with title/description etc...
+* tasks [2/4]
+** DONE setup dir listing
+** TODO setup a global object with title/description etc.
 ** TODO optionally read sidebar/title info from template files
-** TODO users
+** MAYBE users
 
 * dict
 

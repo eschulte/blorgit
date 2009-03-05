@@ -22,7 +22,7 @@ RAW
   def title() $1 if self.raw.split("\n").first.match(/^\*+ (.+)$/) end
   def properties
     props = {}
-    $1.split("\n").
+    self.raw.split("\n").
       each{ |prop_line| props[$1.intern] = $2 if prop_line.match(/^[ \t]+:(.+):[ \t]+(.*)$/) } if
       raw.match(/^[ \t]+:PROPERTIES:(.*):END:/m)
     props
@@ -31,7 +31,7 @@ RAW
   def date() DateTime.parse(self.properties[:date]) end
   def body() self.raw[$~.end(0)..-1] if self.raw.match(/^$/) end
 
-  # parse text returning a tree of nested comments
+  # parse text returning a list of comments
   def self.parse(text)
     comments = []
     while (text and (text.match(/(^\*.*?\n)\*/m) or text.match(/(^\*.*\n)/m)))

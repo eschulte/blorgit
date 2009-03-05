@@ -1,7 +1,11 @@
 # blorgit --- blog runing with org-mode git
 require 'rubygems'
 require 'sinatra'
+require 'yaml'
 require 'backend/init.rb'
+
+# Read and return the global configuration
+@@config = YAML.load(File.read(File.join(Blog.base_directory, '.blorgit.yml')))
 
 # Routes
 #--------------------------------------------------------------------------------
@@ -11,7 +15,7 @@ set(:app_file, __FILE__)
 set(:haml, { :format => :html5, :attr_wrapper  => '"' })
 use_in_file_templates!
 
-get('/') { directory('./') }
+get('/') { redirect('/'+@@config['index']) }
 
 get(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
@@ -111,7 +115,7 @@ __END__
         else { document.getElementById(item).style.visibility = "visible" }
       }
   %link{:rel => "stylesheet", :type => "text/css", :href => "/.stylesheet.css"}
-  %title= "blorgit: #{@title}"
+  %title= "#{@@config['title']}: #{@title}"
   %body
     #titlebar= render :haml, :titlebar, :layout => false
     %div{:style => 'clear:both;'}
@@ -127,7 +131,7 @@ __END__
 
 @@ titlebar
 #title
-  %a{ :href => '/', :title => :blorgit } blorgit
+  %a{ :href => '/', :title => @@config['title'] }= @@config['title']
 
 @@ sidebar
 %ul
@@ -137,7 +141,7 @@ __END__
 
 @@ blog
 #blog_body= @blog.to_html
-#comments= render :haml, :comments, :locals => {:comments => @blog.comments}, :layout => false
+#comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable?}, :layout => false)
 
 @@ comments
 #existing_commment
@@ -158,27 +162,28 @@ __END__
         %li
           %label comment
           %div= Blog.string_to_html(comment.body)
-#new_comment
-  %label{ :onclick => "toggle('comment_form');"} Post a new Comment
-  %form{ :action => path_for(@blog), :method => :post, :id => :comment_form, :style => 'visibility:hidden' }
-    - equation = "#{rand(10)} #{['+', '*', '-'].sort_by{rand}.first} #{rand(10)}"
-    %ul
-      %li
-        %label name
-        %input{ :id => :name, :name => :name, :type => :text }
-      %li
-        %label title
-        %input{ :id => :title, :name => :title, :type => :text, :size => 36 }
-      %li
-        %label comment
-        %textarea{ :id => :comment, :name => :comment, :rows => 8, :cols => 68 }
-      %li
-        %input{ :id => :checkout, :name => :checkout, :type => :hidden, :value => eval(equation) }
-        %span
-        %p just to ensure you're a person, please answer the following
-        = equation + " = "
-        %input{ :id => :captca, :name => :captca, :type => :text, :size => 4 }
-      %li
-        %input{ :id => :post, :name => :post, :value => :post, :type => :submit }
+- if commentable
+  #new_comment
+    %label{ :onclick => "toggle('comment_form');"} Post a new Comment
+    %form{ :action => path_for(@blog), :method => :post, :id => :comment_form, :style => 'visibility:hidden' }
+      - equation = "#{rand(10)} #{['+', '*', '-'].sort_by{rand}.first} #{rand(10)}"
+      %ul
+        %li
+          %label name
+          %input{ :id => :name, :name => :name, :type => :text }
+        %li
+          %label title
+          %input{ :id => :title, :name => :title, :type => :text, :size => 36 }
+        %li
+          %label comment
+          %textarea{ :id => :comment, :name => :comment, :rows => 8, :cols => 68 }
+        %li
+          %input{ :id => :checkout, :name => :checkout, :type => :hidden, :value => eval(equation) }
+          %span
+          %p just to ensure you're a person, please answer the following
+          = equation + " = "
+          %input{ :id => :captca, :name => :captca, :type => :text, :size => 4 }
+        %li
+          %input{ :id => :post, :name => :post, :value => :post, :type => :submit }
 
 -#end-of-file
