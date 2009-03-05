@@ -14,9 +14,6 @@ use_in_file_templates!
 
 get('/') { directory('./') }
 
-get('/.git') { @git = Blog.git; haml :git }
-
-# read a page
 get(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
   if @blog = Blog.find(path)
@@ -25,6 +22,7 @@ get(/^\/(.*)?$/) do
       haml :blog
     else
       content_type(format)
+      attachment extension(@blog.path, format)
       @blog.send("to_#{format}")
     end
   elsif @entries = Blog.entries(path)
@@ -34,50 +32,24 @@ get(/^\/(.*)?$/) do
   end
 end
 
-get(/^\/\.edit\/(.*)?$/) do
+post(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
+  redirect('/.sorry') unless params[:checkout] == params[:captca]
   if @blog = Blog.find(path)
-    @title = @blog.title
-    haml :edit
+    @blog.add_comment(Comment.build(2, params[:name], params[:title], params[:comment]))
+    @blog.save
+    redirect(path_for(@blog))
   else
     pass
   end
 end
 
-# update a page
-put(/^\/(.*)?$/) do
-  path, format = split_format(params[:captures].first)
-  if @blog = Blog.find(path)
-    @blog.body = params[:body]
-    if @blog.save_and_commit(:message => params[:message], :author => git_author)
-      @title = @blog.title
-      haml :blog
-    end
-  else
-    pass
-  end
-end
-
-post(/^\/(.*)$/) do
-  # post a comment to this blog
-end
+get('/.sorry') { "Sorry, that's the wrong answer..." }
 
 # Helpers
 #--------------------------------------------------------------------------------
 
 helpers do
-  # user helpers
-  def logged_in?() false end
-  def current_user() nil end
-  def ensure_role(role) current_user.role?(role) end
-  def login(user, password) end
-  def git_author() "Some One <someone@example.org>" end
-  def show_git_author(author)
-    haml("%a{ :href => 'mailto:#{author.email}', :title => 'email #{author.name}'} #{author.name}",
-         :layout => false)
-  end
-  
-  # blog helpers
   def directory(dir)
     @title = dir
     @dir = dir
@@ -87,25 +59,42 @@ helpers do
   
   def split_format(url) url.match(/(.+)\.(.+)/) ? [$1, $2] : [url, 'html'] end
 
-  def path_for(blog, action = :show, options ={})
-    File.join('/', (action == :edit) ? '.edit/' : '',
-              force_extension(blog.path, (options[:format] or nil)))
-  end
+  def path_for(blog, options ={}) File.join('/', extension(blog.path, (options[:format] or nil))) end
   
   def show(blog, options={}) haml("%a{ :href => '#{path_for(blog)}' } #{blog.title}", :layout => false) end
 
   def comment(blog, parent_comment) end
   
-  # if new_extension is not true, then any existing extension will be stripped
-  def force_extension(path, new_extension = nil)
-    path = $1 if path.match("^(.+)\\.(.+?)$")
-    if new_extension
-      "#{path}.#{new_extension}"
-    else
-      path
+  def extension(path, format = nil) (path.match(/^(.+)\..+$/) ? $1 : path)+(format ? "."+format : '') end
+
+  def time_ago(from_time)
+    to_time = Time.now
+    distance_in_minutes = (((to_time - from_time.to_time).abs)/60).round
+    distance_in_seconds = ((to_time - from_time.to_time).abs).round
+
+    case distance_in_minutes
+    when 0..1
+      return (distance_in_minutes == 0) ? 'less than a minute' : '1 minute' unless include_seconds
+      case distance_in_seconds
+      when 0..4   then 'less than 5 seconds'
+      when 5..9   then 'less than 10 seconds'
+      when 10..19 then 'less than 20 seconds'
+      when 20..39 then 'half a minute'
+      when 40..59 then 'less than a minute'
+      else             '1 minute'
+      end
+
+    when 2..44           then "#{distance_in_minutes} minutes"
+    when 45..89          then 'about 1 hour'
+    when 90..1439        then "about #{(distance_in_minutes.to_f / 60.0).round} hours"
+    when 1440..2879      then '1 day'
+    when 2880..43199     then "#{(distance_in_minutes / 1440).round} days"
+    when 43200..86399    then 'about 1 month'
+    when 86400..525599   then "#{(distance_in_minutes / 43200).round} months"
+    when 525600..1051199 then 'about 1 year'
+    else                      "over #{(distance_in_minutes / 525600).round} years"
     end
   end
-
 end
 
 # HAML Templates (http://haml.hamptoncatlin.com/)
@@ -129,27 +118,11 @@ __END__
 %ul
 - @entries.each do |entry|
   %li
-    %a{ :href => File.join(@dir, entry) }= entry
+    %a{ :href => File.join(@dir, extension(entry)) }= entry
 
 @@ titlebar
 #title
   %a{ :href => '/', :title => :blorgit } blorgit
-#user= render :haml, :user, :layout => false
-%div{:style => 'clear:both;'}
-#grep
-  %form{:action => '.grep', :method => :post}
-    %input{:name => :query, :id => :query, :type => :text, :size => 24}
-    %input{:name => :grep, :type => :submit, :value => :grep}
-
-@@ user
-#login
-  - unless logged_in?
-    %form{:action => '.login', :method => :post}
-      %input{:name => :username, :id => :username, :type => :text, :size => 12}
-      %input{:name => :password, :id => :password, :type => :password, :size => 12}
-      %input{:name => :login, :type => :submit, :value => :login}
-  - else
-    %span= username
 
 @@ sidebar
 %ul
@@ -158,51 +131,49 @@ __END__
     %a{ :href => path_for(blog)}= blog.title
 
 @@ blog
-#info
-  %ul
-    %li
-      #commit_info
-        %label last commit:
-        - if commit = @blog.last_commit
-          %span= "#{show_git_author(commit.author)} at #{commit.date}"
-        - else
-          %span Unknown
-#actions
-  %ul
-    %li
-      %a{ :href => path_for(@blog, :edit) } edit
 #blog_body= @blog.to_html
 #comments= render :haml, :comments, :locals => {:comments => @blog.comments}, :layout => false
 
-@@ edit
-#edit
-  %form{:action => "/"+force_extension(@blog.path), :method => :post}
-    %input{:type => :hidden, :name => :_method, :value => :put}
-    %textarea{:name => :body, :id => :body, :cols => 100, :rows => 34}= @blog.body
-    %textarea{:name => :message, :id => :message, :cols => 70}
-    %br
-    %input{:name => :edit, :type => :submit, :value => :commit}
-    %a{ :href => '/'+force_extension(@blog.path) } cancel
-
 @@ comments
-%label= "Comments (#{comments.size})"
-%ul
-- comments.each do |comment|
-  %li#comment
-    %p
-      %label title
-      comment.title
-    %p
-      %label author
-      comment.author
-    %p
-      %label date
-      comment.date
-    %p
-      %label body
-      comment.body
-
-@@ git
-#git information on the git repository
+#existing_commment
+  %label= "Comments (#{comments.size})"
+  %ul
+  - comments.each do |comment|
+    %li
+      %ul
+        %li
+          %label title
+          = comment.title
+        %li
+          %label author
+          = comment.author
+        %li
+          %label date
+          = time_ago(comment.date) + " ago"
+        %li
+          %label comment
+          %div= Blog.string_to_html(comment.body)
+#new_comment
+  %label Post a new Comment
+  %form{ :action => path_for(@blog), :method => :post }
+    - equation = "#{rand(10)} #{['+', '*', '-'].sort_by{rand}.first} #{rand(10)}"
+    %ul
+      %li
+        %label name
+        %input{ :id => :name, :name => :name, :type => :text }
+      %li
+        %label title
+        %input{ :id => :title, :name => :title, :type => :text, :size => 36 }
+      %li
+        %label comment
+        %textarea{ :id => :comment, :name => :comment, :rows => 8, :cols => 68 }
+      %li
+        %input{ :id => :checkout, :name => :checkout, :type => :hidden, :value => eval(equation) }
+        %span
+        %p just to ensure you're a person, please answer the following
+        = equation + " = "
+        %input{ :id => :captca, :name => :captca, :type => :text, :size => 4 }
+      %li
+        %input{ :id => :post, :name => :post, :value => :post, :type => :submit }
 
 -#end-of-file

@@ -14,6 +14,10 @@ The overriding goal will be simplicity.
 - [[http://github.com/sinatra/sinatra/tree/master][git-hub/sinatra]]
 - [[http://www.sinatrarb.com/faq.html][sinatra-faq]]
 
+*** specific issues
+**** send_data
+http://sinatra.lighthouseapp.com/projects/9779/tickets/143-send_data-no-longer-present
+
 * tasks [0/4]
 ** TODO setup dir listing
 ** TODO setup a global object with title/description etc...
