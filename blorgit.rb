@@ -152,7 +152,7 @@ __END__
           = time_ago(comment.date) + " ago"
         %li
           %label comment
-          %div= comment.body
+          %div= Blog.string_to_html(comment.body)
 #new_comment
   %label Post a new Comment
   %form{ :action => path_for(@blog), :method => :post }
@@ -163,16 +163,16 @@ __END__
         %input{ :id => :name, :name => :name, :type => :text }
       %li
         %label title
-        %input{ :id => :title, :name => :title, :type => :text }
+        %input{ :id => :title, :name => :title, :type => :text, :size => 36 }
       %li
         %label comment
         %textarea{ :id => :comment, :name => :comment, :rows => 8, :cols => 68 }
       %li
         %input{ :id => :checkout, :name => :checkout, :type => :hidden, :value => eval(equation) }
         %span
-        %p just to ensure you're a person, please solve the following
+        %p just to ensure you're a person, please answer the following
         = equation + " = "
-        %input{ :id => :captca, :name => :captca, :type => :text }
+        %input{ :id => :captca, :name => :captca, :type => :text, :size => 4 }
       %li
         %input{ :id => :post, :name => :post, :value => :post, :type => :submit }
 
