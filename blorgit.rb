@@ -22,6 +22,7 @@ get(/^\/(.*)?$/) do
       haml :blog
     else
       content_type(format)
+      attachment extension(@blog.path, format)
       @blog.send("to_#{format}")
     end
   elsif @entries = Blog.entries(path)
@@ -64,7 +65,7 @@ helpers do
 
   def comment(blog, parent_comment) end
   
-  def extension(path, format = nil) (path.match("^(.+)\\.(.+?)$") ? $1 : path) + (format or '') end
+  def extension(path, format = nil) (path.match(/^(.+)\..+$/) ? $1 : path)+(format ? "."+format : '') end
 
   def time_ago(from_time)
     to_time = Time.now
