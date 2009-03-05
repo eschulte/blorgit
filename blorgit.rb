@@ -5,7 +5,6 @@ require 'backend/init.rb'
 
 # Routes
 #--------------------------------------------------------------------------------
-TITLE = "blorgit"
 set(:public, Blog.base_directory)
 enable(:static)
 set(:app_file, __FILE__)
@@ -105,8 +104,14 @@ __END__
 %html
   %head
     %meta{'http-equiv' => "content-type", :content => "text/html;charset=UTF-8"}
-    %link{:rel => "stylesheet", :type => "text/css", :href => "/.stylesheet.css"}
-    %title= "blorgit: #{@title}"
+    :javascript
+      function toggle(item) {
+        el = document.getElementById(item);
+        if(el.style.visibility == "visible") { document.getElementById(item).style.visibility = "hidden" }
+        else { document.getElementById(item).style.visibility = "visible" }
+      }
+  %link{:rel => "stylesheet", :type => "text/css", :href => "/.stylesheet.css"}
+  %title= "blorgit: #{@title}"
   %body
     #titlebar= render :haml, :titlebar, :layout => false
     %div{:style => 'clear:both;'}
@@ -126,7 +131,7 @@ __END__
 
 @@ sidebar
 %ul
-- Blog.all.each do |blog|
+- Blog.all.sort_by(&:mtime).reverse.each do |blog|
   %li
     %a{ :href => path_for(blog)}= blog.title
 
@@ -154,8 +159,8 @@ __END__
           %label comment
           %div= Blog.string_to_html(comment.body)
 #new_comment
-  %label Post a new Comment
-  %form{ :action => path_for(@blog), :method => :post }
+  %label{ :onclick => "toggle('comment_form');"} Post a new Comment
+  %form{ :action => path_for(@blog), :method => :post, :id => :comment_form, :style => 'visibility:hidden' }
     - equation = "#{rand(10)} #{['+', '*', '-'].sort_by{rand}.first} #{rand(10)}"
     %ul
       %li
