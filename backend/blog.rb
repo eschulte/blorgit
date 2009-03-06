@@ -7,7 +7,7 @@ class Blog < ActiveFile::Base
   def comment_section() self.body[$~.end(0)..-1] if self.body.match(/^\* COMMENT Comments$/) end
   def comments() Comment.parse(self.comment_section) end
   def add_comment(comment) self.ensure_comments_section; self.body << comment.raw end
-  def commentable?() (not subtree_properties(self.ensure_comments_section).keys.include?(:closed)) end
+  def commentable() subtree_properties(self.ensure_comments_section)[:commentable] end
   
   # ensure that the body has one and only one line that looks like
   #

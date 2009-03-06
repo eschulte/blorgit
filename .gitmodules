@@ -4,3 +4,6 @@
 [submodule "backend/acts_as_org"]
 	path = backend/acts_as_org
 	url = git://github.com/eschulte/acts_as_org.git
+[submodule "themes"]
+	path = themes
+	url = git://github.com/eschulte/blorgit_themes.git

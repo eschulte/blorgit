@@ -3,13 +3,15 @@
 * design
 
 Thinking of using [[http://github.com/bmizerany/sinatra/tree/master][sinatra]] for the framework, [[http://github.com/eschulte/active_file/tree/master][active_file]] for object
-persistence, [[http://github.com/eschulte/acts_as_git/tree/master][acts_as_git]] for the git interface, and [[http://github.com/eschulte/acts_as_org/tree/master][acts_as_org]] for
-the git publishing.
+persistence, and [[http://github.com/eschulte/acts_as_org/tree/master][acts_as_org]] for the org-mode exportation/interaction.
 
 The overriding goal will be simplicity.
 
 * notes
 ** sinatra
+Sinatra is a very nice little mini-framework or DSL for writing simple
+single-file web applications.
+
 - [[http://sinatra.rubyforge.org/book.html][sinatra-book]]
 - [[http://github.com/sinatra/sinatra/tree/master][git-hub/sinatra]]
 - [[http://www.sinatrarb.com/faq.html][sinatra-faq]]
@@ -18,10 +20,14 @@ The overriding goal will be simplicity.
 **** send_data
 http://sinatra.lighthouseapp.com/projects/9779/tickets/143-send_data-no-longer-present
 
-* tasks [2/4]
+* tasks [3/4]
 ** DONE setup dir listing
-** TODO setup a global object with title/description etc.
+** DONE setup a global object with title/description etc.
+this lives in the root of the blogs directory at =.blorgit.yml=
+
 ** TODO optionally read sidebar/title info from template files
+
+
 ** MAYBE users
 
 * dict

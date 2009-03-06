@@ -1,21 +1,22 @@
-# blorgit --- blog runing with org-mode git
+# blorgit --- blogging with org-mode
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
 require 'backend/init.rb'
 
-# Read and return the global configuration
-@@config = YAML.load(File.read(File.join(Blog.base_directory, '.blorgit.yml')))
-
-# Routes
+# Configuration (http://sinatra.rubyforge.org/book.html#configuration)
 #--------------------------------------------------------------------------------
+$config = YAML.load(File.read(File.join(Blog.base_directory, '.blorgit.yml')))
 set(:public, Blog.base_directory)
+set(:views, Blog.base_directory)
 enable(:static)
 set(:app_file, __FILE__)
 set(:haml, { :format => :html5, :attr_wrapper  => '"' })
 use_in_file_templates!
 
-get('/') { redirect('/'+@@config['index']) }
+# Routes (http://sinatra.rubyforge.org/book.html#routes)
+#--------------------------------------------------------------------------------
+get('/') { redirect('/'+$config['index']) }
 
 get(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
@@ -37,7 +38,7 @@ end
 
 post(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
-  redirect('/.sorry') unless params[:checkout] == params[:captca]
+  return "Sorry, review your math..." unless params[:checkout] == params[:captca]
   if @blog = Blog.find(path)
     @blog.add_comment(Comment.build(2, params[:name], params[:title], params[:comment]))
     @blog.save
@@ -47,11 +48,8 @@ post(/^\/(.*)?$/) do
   end
 end
 
-get('/.sorry') { "Sorry, that's the wrong answer..." }
-
 # Helpers
 #--------------------------------------------------------------------------------
-
 helpers do
   def directory(dir)
     @title = dir
@@ -71,22 +69,9 @@ helpers do
   def extension(path, format = nil) (path.match(/^(.+)\..+$/) ? $1 : path)+(format ? "."+format : '') end
 
   def time_ago(from_time)
-    to_time = Time.now
-    distance_in_minutes = (((to_time - from_time.to_time).abs)/60).round
-    distance_in_seconds = ((to_time - from_time.to_time).abs).round
-
+    distance_in_minutes = (((Time.now - from_time.to_time).abs)/60).round
     case distance_in_minutes
-    when 0..1
-      return (distance_in_minutes == 0) ? 'less than a minute' : '1 minute' unless include_seconds
-      case distance_in_seconds
-      when 0..4   then 'less than 5 seconds'
-      when 5..9   then 'less than 10 seconds'
-      when 10..19 then 'less than 20 seconds'
-      when 20..39 then 'half a minute'
-      when 40..59 then 'less than a minute'
-      else             '1 minute'
-      end
-
+    when 0..1            then 'about a minute'
     when 2..44           then "#{distance_in_minutes} minutes"
     when 45..89          then 'about 1 hour'
     when 90..1439        then "about #{(distance_in_minutes.to_f / 60.0).round} hours"
@@ -114,13 +99,14 @@ __END__
         if(el.style.visibility == "visible") { document.getElementById(item).style.visibility = "hidden" }
         else { document.getElementById(item).style.visibility = "visible" }
       }
-  %link{:rel => "stylesheet", :type => "text/css", :href => "/.stylesheet.css"}
-  %title= "#{@@config['title']}: #{@title}"
+  %link{:rel => "stylesheet", :type => "text/css", :href => "/"+$config['style']}
+  %title= "#{$config['title']}: #{@title}"
   %body
-    #titlebar= render :haml, :titlebar, :layout => false
-    %div{:style => 'clear:both;'}
-    #sidebar= render :haml, :sidebar, :layout => false
-    #contents= yield
+    #container
+      #titlebar= render(:haml, :titlebar, :layout => false)
+      #title_separator
+      #sidebar= render(:haml, :sidebar, :layout => false)
+      #contents= yield
 
 @@ list
 #list
@@ -130,18 +116,25 @@ __END__
     %a{ :href => File.join(@dir, extension(entry)) }= entry
 
 @@ titlebar
-#title
-  %a{ :href => '/', :title => @@config['title'] }= @@config['title']
+#title_container
+  #logo_left
+  #title
+    %a{ :href => '/', :title => $config['title'] }= $config['title']
+  #logo_right
 
 @@ sidebar
+%label= $config['sidebar_label']
+- if($config['sidebar_text'] and $config['sidebar_text'].length > 0)
+  %p= $config['sidebar_text']
 %ul
-- Blog.all.sort_by(&:mtime).reverse.each do |blog|
-  %li
-    %a{ :href => path_for(blog)}= blog.title
+  - Blog.all.sort_by(&:mtime)[(0..$config['recent'])].reverse.each do |blog|
+    %li
+      %a{ :href => path_for(blog)}= blog.title
 
 @@ blog
 #blog_body= @blog.to_html
-#comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable?}, :layout => false)
+- unless @blog.commentable == 'disabled'
+  #comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable}, :layout => false)
 
 @@ comments
 #existing_commment
@@ -162,7 +155,7 @@ __END__
         %li
           %label comment
           %div= Blog.string_to_html(comment.body)
-- if commentable
+- unless commentable == 'closed'
   #new_comment
     %label{ :onclick => "toggle('comment_form');"} Post a new Comment
     %form{ :action => path_for(@blog), :method => :post, :id => :comment_form, :style => 'visibility:hidden' }
@@ -180,10 +173,10 @@ __END__
         %li
           %input{ :id => :checkout, :name => :checkout, :type => :hidden, :value => eval(equation) }
           %span
-          %p just to ensure you're a person, please answer the following
+          %p to protect against spam, please answer the following
           = equation + " = "
           %input{ :id => :captca, :name => :captca, :type => :text, :size => 4 }
         %li
           %input{ :id => :post, :name => :post, :value => :post, :type => :submit }
 
--#end-of-file
+-#end-of-file # this is for Sinatra-Mode (http://github.com/eschulte/rinari/tree/sinatra)
