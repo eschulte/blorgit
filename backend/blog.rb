@@ -3,12 +3,21 @@ class Blog < ActiveFile::Base
   self.location = ["**", :name, "org"]
   acts_as_org
 
+  def self.files(path)
+    base = (File.directory?(self.expand(path)) ? self.expand(path) : File.dirname(self.expand(path)))
+    self.entries(path).
+      map{ |f| File.join(base, f) }.
+      select{ |f| (File.directory?(f) or f.match(Blog.location_regexp)) }.
+      map{ |f| f.sub(Blog.base_directory, '')}.
+      reject{ |f| f.match(/\/\./) }
+  end
+
   def title() (self.to_html(:full_html => true).match(/<title>(.*)<\/title>/) and $1) end
   def comment_section() self.body[$~.end(0)..-1] if self.body.match(/^\* COMMENT Comments$/) end
   def comments() Comment.parse(self.comment_section) end
   def add_comment(comment) self.ensure_comments_section; self.body << comment.raw end
   def commentable() subtree_properties(self.ensure_comments_section)[:commentable] end
-  
+
   # ensure that the body has one and only one line that looks like
   #
   #    * COMMENT Comments
@@ -29,4 +38,5 @@ class Blog < ActiveFile::Base
       raw.match(/^[ \t]+:PROPERTIES:(.*):END:/m)
     props
   end
+
 end

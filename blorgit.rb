@@ -8,7 +8,6 @@ require 'backend/init.rb'
 #--------------------------------------------------------------------------------
 $config = YAML.load(File.read(File.join(Blog.base_directory, '.blorgit.yml')))
 set(:public, Blog.base_directory)
-set(:views, Blog.base_directory)
 enable(:static)
 set(:app_file, __FILE__)
 set(:haml, { :format => :html5, :attr_wrapper  => '"' })
@@ -20,17 +19,16 @@ get('/') { redirect('/'+$config['index']) }
 
 get(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
-  if @blog = Blog.find(path)
-    if format == 'html'
-      @title = @blog.title
-      haml :blog
-    else
-      content_type(format)
-      attachment extension(@blog.path, format)
-      @blog.send("to_#{format}")
-    end
-  elsif @entries = Blog.entries(path)
-    directory(path)
+  @files = (Blog.files(path) or [])
+  @blog = Blog.find(path)
+  pass unless (@blog or @files.size > 0)
+  if format == 'html'
+    @title = @blog ? @blog.title : path
+    haml :blog
+  elsif @blog
+    content_type(format)
+    attachment extension(@blog.path, format)
+    @blog.send("to_#{format}")
   else
     pass
   end
@@ -51,13 +49,6 @@ end
 # Helpers
 #--------------------------------------------------------------------------------
 helpers do
-  def directory(dir)
-    @title = dir
-    @dir = dir
-    @entries = Blog.entries(dir).reject{|p| p.match(/^\./) }
-    haml :list
-  end
-  
   def split_format(url) url.match(/(.+)\.(.+)/) ? [$1, $2] : [url, 'html'] end
 
   def path_for(blog, options ={}) File.join('/', extension(blog.path, (options[:format] or nil))) end
@@ -105,15 +96,8 @@ __END__
     #container
       #titlebar= render(:haml, :titlebar, :layout => false)
       #title_separator
-      #sidebar= render(:haml, :sidebar, :layout => false)
+      #sidebar= render(:haml, :sidebar, :locals => { :files => @files }, :layout => false)
       #contents= yield
-
-@@ list
-#list
-%ul
-- @entries.each do |entry|
-  %li
-    %a{ :href => File.join(@dir, extension(entry)) }= entry
 
 @@ titlebar
 #title_container
@@ -123,7 +107,11 @@ __END__
   #logo_right
 
 @@ sidebar
-%label= $config['sidebar_label']
+#recent= haml :recent, :layout => false
+#list= haml :list, :locals => { :files => files }, :layout => false
+
+@@ recent
+%label Recent Blogs
 - if($config['sidebar_text'] and $config['sidebar_text'].length > 0)
   %p= $config['sidebar_text']
 %ul
@@ -131,10 +119,20 @@ __END__
     %li
       %a{ :href => path_for(blog)}= blog.title
 
+@@ list
+%label Directory Files
+%ul
+  - files.each do |file|
+    %li
+      %a{ :href => extension(file) }= File.basename(file)
+
 @@ blog
-#blog_body= @blog.to_html
-- unless @blog.commentable == 'disabled'
-  #comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable}, :layout => false)
+- if @blog
+  #blog_body= @blog.to_html
+  - unless @blog.commentable == 'disabled'
+    #comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable}, :layout => false)
+- else
+  #list= haml :list, :locals => { :files => @files }, :layout => false
 
 @@ comments
 #existing_commment
