@@ -1,7 +1,13 @@
 require 'blorgit'
 $base = File.dirname(__FILE__)
-$themes = File.join($base, 'themes')
 $blogs = Blog.base_directory
+$themes = File.join($base, 'themes')
+def themes
+  Dir.entries($themes).
+    select{ |f| FileTest.directory?(File.join($themes, f)) }.
+    reject{ |f| f.match(/^\./) }.each do |theme|
+  end
+end
 
 desc "Return configuration information about the current setup"
 task :info do
@@ -18,15 +24,30 @@ end
 namespace :deploy do
   
   desc "create a fresh blogs directory"
-  task :new => :check do
+  task :fresh do
+    if FileTest.exists?($blogs)
+      puts "A blogs directory already exists at #{$blogs}"
+      abort
+    else
+      FileUtils.mkdir_p($blogs)
+    end
   end
 
   desc "drop a new default config file into the blogs/.blorgit.yml"
   task :config do
-  end
-
-  desc "compile the sass css file and drop it into blogs/stylesheet.css"
-  task :css do
+    config = File.join($blogs, '.blorgit.yml')
+    if FileTest.exists?(config)
+      puts "A config file already exists at #{config}"
+      abort
+    else
+      File.open(config, 'w') {|f| f < YAML.dump({
+                                                  :title => 'Blorgit',
+                                                  :index => 'index',
+                                                  :recent => -1,
+                                                  :style => 'stylesheet.css',
+                                                  :sidebar_label => 'All Blogs'
+                                                }) }
+      end
   end
 
   desc "apply a given theme"
@@ -38,12 +59,5 @@ namespace :deploy do
       puts "Must pass a theme, for example rake deploy:theme THEME=default"
       abort
     end
-  end
-end
-
-def themes
-  Dir.entries($themes).
-    select{ |f| FileTest.directory?(File.join($themes, f)) }.
-    reject{ |f| f.match(/^\./) }.each do |theme|
   end
 end

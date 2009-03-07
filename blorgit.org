@@ -26,8 +26,6 @@ http://sinatra.lighthouseapp.com/projects/9779/tickets/143-send_data-no-longer-p
 this lives in the root of the blogs directory at =.blorgit.yml=
 
 ** TODO optionally read sidebar/title info from template files
-
-
 ** MAYBE users
 
 * dict
