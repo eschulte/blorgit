@@ -46,6 +46,12 @@ post(/^\/(.*)?$/) do
   end
 end
 
+post(/.search/) do
+  @query = params[:query]
+  @results = Blog.search(params[:query])
+  haml :results
+end
+
 # Helpers
 #--------------------------------------------------------------------------------
 helpers do
@@ -107,13 +113,22 @@ __END__
   #logo_right
 
 @@ sidebar
+#search= haml :search, :layout => false
 #recent= haml :recent, :layout => false
-#list= haml :list, :locals => { :files => files }, :layout => false
+- if @files
+  #list= haml :list, :locals => { :files => files }, :layout => false
+
+@@ search
+%label Search
+%form{ :action => '.search', :method => :post, :id => :search }
+  %ul
+    %li
+      %input{ :id => :query, :name => :query, :type => :text, :size => 12 }
+    %li
+      %input{ :id => :search, :name => :search, :value => :search, :type => :submit }
 
 @@ recent
 %label Recent Blogs
-- if($config['sidebar_text'] and $config['sidebar_text'].length > 0)
-  %p= $config['sidebar_text']
 %ul
   - Blog.all.sort_by(&:mtime)[(0..$config['recent'])].reverse.each do |blog|
     %li
@@ -125,6 +140,15 @@ __END__
   - files.each do |file|
     %li
       %a{ :href => extension(file) }= File.basename(file)
+
+@@ results
+#results_list
+  %h1= "Search Results for /#{@query}/"
+  %ul
+    - @results.sort_by{ |b,h| -h }.each do |blog, hits|
+      %li
+        %a{ :href => extension(blog.path) }= blog.name
+        = "(#{hits})"
 
 @@ blog
 - if @blog

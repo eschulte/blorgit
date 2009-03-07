@@ -12,6 +12,11 @@ class Blog < ActiveFile::Base
       reject{ |f| f.match(/\/\./) }
   end
 
+  def self.search(query)
+    # self.all.select{ |b| b.body.match(/#{query}/im) }
+    self.all.map{ |b| [b, b.body.split(/#{query}/im).size - 1] }.select{ |blog, hits| hits > 0 }
+  end
+  
   def title() (self.to_html(:full_html => true).match(/<title>(.*)<\/title>/) and $1) end
   def comment_section() self.body[$~.end(0)..-1] if self.body.match(/^\* COMMENT Comments$/) end
   def comments() Comment.parse(self.comment_section) end
