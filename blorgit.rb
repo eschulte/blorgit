@@ -46,7 +46,7 @@ post(/^\/(.*)?$/) do
   end
 end
 
-post(/.search/) do
+post(/^\/.search/) do
   @query = params[:query]
   @results = Blog.search(params[:query])
   haml :results
@@ -120,7 +120,7 @@ __END__
 
 @@ search
 %label Search
-%form{ :action => '.search', :method => :post, :id => :search }
+%form{ :action => '/.search', :method => :post, :id => :search }
   %ul
     %li
       %input{ :id => :query, :name => :query, :type => :text, :size => 12 }
@@ -130,7 +130,7 @@ __END__
 @@ recent
 %label Recent Blogs
 %ul
-  - Blog.all.sort_by(&:mtime)[(0..$config['recent'])].reverse.each do |blog|
+  - Blog.all.sort_by(&:ctime).reverse[(0..$config['recent'])].each do |blog|
     %li
       %a{ :href => path_for(blog)}= blog.title
 
@@ -143,7 +143,9 @@ __END__
 
 @@ results
 #results_list
-  %h1= "Search Results for /#{@query}/"
+  %h1
+    Search Results for
+    %em= "/" + @query + "/"
   %ul
     - @results.sort_by{ |b,h| -h }.each do |blog, hits|
       %li
