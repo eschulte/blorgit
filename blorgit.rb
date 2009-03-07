@@ -128,14 +128,14 @@ __END__
       %input{ :id => :search, :name => :search, :value => :search, :type => :submit }
 
 @@ recent
-%label Recent Blogs
+%label Recent
 %ul
   - Blog.all.sort_by(&:ctime).reverse[(0..$config['recent'])].each do |blog|
     %li
       %a{ :href => path_for(blog)}= blog.title
 
 @@ list
-%label Directory Files
+%label Directory
 %ul
   - files.each do |file|
     %li
