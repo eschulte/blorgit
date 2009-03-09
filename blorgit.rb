@@ -18,6 +18,7 @@ use_in_file_templates!
 get('/') { redirect('/'+$config['index']) }
 
 get(/^\/\.edit\/(.*)?$/) do
+  pass unless $config['editable']
   path, format = split_format(params[:captures].first)
   if @blog = Blog.find(path)
     @title = @blog.title
@@ -53,7 +54,7 @@ post(/^\/(.*)?$/) do
       @blog.add_comment(Comment.build(2, params[:title], params[:author], params[:body]))
       @blog.save
       redirect(path_for(@blog))
-    elsif params[:edit]
+    elsif params[:edit] and $config['editable']
       @blog.body = params[:body]
       @blog.save
       redirect(path_for(@blog))
@@ -134,8 +135,9 @@ __END__
 - if @blog
   #actions
     %ul
-      %li
-        %a{ :href => File.join("/", ".edit", path_for(@blog)), :title => "edit #{@title}" } edit
+      - if $config['editable']
+        %li
+          %a{ :href => File.join("/", ".edit", path_for(@blog)), :title => "edit #{@title}" } edit
       %li
         %a{ :href => path_for(@blog, :format => 'org'), :title => 'download as org-mode' } .org
       %li
@@ -157,7 +159,7 @@ __END__
 @@ recent
 %label Recent
 %ul
-  - Blog.all.sort_by(&:ctime).reverse[(0..$config['recent'])].each do |blog|
+  - Blog.all.sort_by(&:ctime).reverse[(0..($config['recent'] - 1))].each do |blog|
     %li
       %a{ :href => path_for(blog)}= blog.title
 
