@@ -38,7 +38,7 @@ post(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
   return "Sorry, review your math..." unless params[:checkout] == params[:captca]
   if @blog = Blog.find(path)
-    @blog.add_comment(Comment.build(2, params[:name], params[:title], params[:comment]))
+    @blog.add_comment(Comment.build(2, params[:title], params[:author], params[:comment]))
     @blog.save
     redirect(path_for(@blog))
   else
@@ -100,26 +100,27 @@ __END__
   %title= "#{$config['title']}: #{@title}"
   %body
     #container
+      #titlebar_pre
       #titlebar= render(:haml, :titlebar, :layout => false)
+      #titlebar_post
       #title_separator
-      #sidebar= render(:haml, :sidebar, :locals => { :files => @files }, :layout => false)
-      #contents= yield
+      #insides
+        #sidebar= render(:haml, :sidebar, :locals => { :files => @files }, :layout => false)
+        #contents= yield
 
 @@ titlebar
-#title_container
-  #logo_left
-  #title
-    %a{ :href => '/', :title => $config['title'] }= $config['title']
-  #logo_right
+#title_pre
+#title
+  %a{ :href => '/', :title => 'home' }= $config['title']
+#title_post
+#search= haml :search, :layout => false
 
 @@ sidebar
-#search= haml :search, :layout => false
 #recent= haml :recent, :layout => false
 - if @files
   #list= haml :list, :locals => { :files => files }, :layout => false
 
 @@ search
-%label Search
 %form{ :action => '/.search', :method => :post, :id => :search }
   %ul
     %li
@@ -187,7 +188,7 @@ __END__
       %ul
         %li
           %label name
-          %input{ :id => :name, :name => :name, :type => :text }
+          %input{ :id => :author, :name => :author, :type => :text }
         %li
           %label title
           %input{ :id => :title, :name => :title, :type => :text, :size => 36 }
