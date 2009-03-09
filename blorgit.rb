@@ -6,7 +6,12 @@ require 'backend/init.rb'
 
 # Configuration (http://sinatra.rubyforge.org/book.html#configuration)
 #--------------------------------------------------------------------------------
-$config = YAML.load(File.read(File.join(Blog.base_directory, '.blorgit.yml')))
+$config_file = File.join(Blog.base_directory, '.blorgit.yml')
+if File.exists?($config_file)
+  $config = YAML.load(File.read($config_file))
+else
+  $config = {}
+end
 set(:public, Blog.base_directory)
 enable(:static)
 set(:app_file, __FILE__)
@@ -132,10 +137,7 @@ __END__
   %title= "#{$config['title']}: #{@title}"
   %body
     #container
-      #titlebar_pre
       #titlebar= render(:haml, :titlebar, :layout => false)
-      #titlebar_post
-      #title_separator
       #insides
         #sidebar= render(:haml, :sidebar, :locals => { :files => @files }, :layout => false)
         #contents= yield
@@ -156,6 +158,7 @@ __END__
         %a{ :href => path_for(@blog, :format => 'org'), :title => 'download as org-mode' } .org
       %li
         %a{ :href => path_for(@blog, :format => 'tex'), :title => 'download as LaTeX' } .tex
+#title_separator
 
 @@ sidebar
 #recent= haml :recent, :layout => false
