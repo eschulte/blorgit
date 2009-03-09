@@ -20,7 +20,7 @@ Update the submodules of blorgit to provide file based persistence
 org-mode interaction
 ([acts\_as\_org](http://github.com/eschulte/acts_as_org/tree/master)),
 and themes
-[blorgit\_themes](http://github.com/eschulte/blorgit_themes/tree/master)
+([blorgit\_themes](http://github.com/eschulte/blorgit_themes/tree/master))
 
 <pre>
 cd blorgit
