@@ -45,8 +45,8 @@ ruby blorgit.rb
 View at [localhost:4567](http://localhost:4567)
 
 If you're wondering where git comes in, initialize your new blogs
-directory as a git repo, and handle all future updates, and
-configuration through git.
+directory as a git repo, and post all future blogs, moderate comments
+and commentability of blogs, and manage configuration through git.
 
 <pre>
 cd ~/blogs
