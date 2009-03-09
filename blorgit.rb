@@ -55,6 +55,7 @@ post(/^\/(.*)?$/) do
       @blog.save
       redirect(path_for(@blog))
     elsif params[:edit] and $config['editable']
+      protected!
       @blog.body = params[:body]
       @blog.save
       redirect(path_for(@blog))
@@ -98,6 +99,19 @@ helpers do
     else                      "over #{(distance_in_minutes / 525600).round} years"
     end
   end
+
+  # from http://www.sinatrarb.com/faq.html#auth
+  def protected!
+    response['WWW-Authenticate'] = %(Basic realm="username and password required") and \
+    throw(:halt, [401, "Not authorized\n"]) and \
+    return unless ((not $config['auth']) or authorized?)
+  end
+
+  def authorized?
+    @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+    @auth.provided? && @auth.basic? && @auth.credentials && @auth.credentials == $config['auth']
+  end
+
 end
 
 # HAML Templates (http://haml.hamptoncatlin.com/)
