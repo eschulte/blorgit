@@ -17,7 +17,7 @@ class Blog < ActiveFile::Base
     self.all.map{ |b| [b, b.body.split(/#{query}/im).size - 1] }.select{ |blog, hits| hits > 0 }
   end
   
-  def title() (self.to_html(:full_html => true).match(/<title>(.*)<\/title>/) and $1) end
+  def title() ((self.body.match(/^#+TITLE: (.*)$/) and $1) or self.name) end
   def comment_section() self.body[$~.end(0)..-1] if self.body.match(/^\* COMMENT Comments$/) end
   def comments() Comment.parse(self.comment_section) end
   def add_comment(comment) self.ensure_comments_section; self.body << comment.raw end
