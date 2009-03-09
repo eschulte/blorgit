@@ -38,7 +38,7 @@ get(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
   @files = (Blog.files(path) or [])
   @blog = Blog.find(path)
-  pass unless (@blog or @files.size > 0)
+  pass unless (@blog or File.directory?(Blog.expand(path)))
   if format == 'html'
     @title = @blog ? @blog.title : path
     haml :blog
@@ -163,7 +163,7 @@ __END__
 @@ sidebar
 #recent= haml :recent, :layout => false
 - if @files
-  #list= haml :list, :locals => { :files => files }, :layout => false
+  #dir= haml :dir, :locals => { :files => files }, :layout => false
 
 @@ search
 %form{ :action => '/.search', :method => :post, :id => :search }
@@ -180,12 +180,12 @@ __END__
     %li
       %a{ :href => path_for(blog)}= blog.title
 
-@@ list
+@@ dir
 %label Directory
 %ul
   - files.each do |file|
     %li
-      %a{ :href => extension(file) }= File.basename(file)
+      %a{ :href => extension(file) + (File.directory?(Blog.expand(file)) ? "/" : "") }= File.basename(file)
 
 @@ results
 #results_list
@@ -212,7 +212,7 @@ __END__
   - unless @blog.commentable == 'disabled'
     #comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable}, :layout => false)
 - else
-  #list= haml :list, :locals => { :files => @files }, :layout => false
+  #dir= haml :dir, :locals => { :files => @files }, :layout => false
 
 @@ comments
 #existing_commment
