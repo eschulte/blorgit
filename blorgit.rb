@@ -17,6 +17,17 @@ use_in_file_templates!
 #--------------------------------------------------------------------------------
 get('/') { redirect('/'+$config['index']) }
 
+get(/^\/\.edit\/(.*)?$/) do
+  path, format = split_format(params[:captures].first)
+  if @blog = Blog.find(path)
+    @title = @blog.title
+    @files = (Blog.files(path) or [])
+    haml :edit
+  else
+    "Nothing here to edit."
+  end
+end
+
 get(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
   @files = (Blog.files(path) or [])
@@ -36,11 +47,17 @@ end
 
 post(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
-  return "Sorry, review your math..." unless params[:checkout] == params[:captca]
   if @blog = Blog.find(path)
-    @blog.add_comment(Comment.build(2, params[:title], params[:author], params[:comment]))
-    @blog.save
-    redirect(path_for(@blog))
+    if params[:comment]
+      return "Sorry, review your math..." unless params[:checkout] == params[:captca]
+      @blog.add_comment(Comment.build(2, params[:title], params[:author], params[:body]))
+      @blog.save
+      redirect(path_for(@blog))
+    elsif params[:edit]
+      @blog.body = params[:body]
+      @blog.save
+      redirect(path_for(@blog))
+    end
   else
     pass
   end
@@ -52,7 +69,7 @@ post(/^\/.search/) do
   haml :results
 end
 
-# Helpers
+# Helpers (http://sinatra.rubyforge.org/book.html#helpers)
 #--------------------------------------------------------------------------------
 helpers do
   def split_format(url) url.match(/(.+)\.(.+)/) ? [$1, $2] : [url, 'html'] end
@@ -114,6 +131,15 @@ __END__
   %a{ :href => '/', :title => 'home' }= $config['title']
 #title_post
 #search= haml :search, :layout => false
+- if @blog
+  #actions
+    %ul
+      %li
+        %a{ :href => File.join("/", ".edit", path_for(@blog)), :title => "edit #{@title}" } edit
+      %li
+        %a{ :href => path_for(@blog, :format => 'org'), :title => 'download as org-mode' } .org
+      %li
+        %a{ :href => path_for(@blog, :format => 'tex'), :title => 'download as LaTeX' } .tex
 
 @@ sidebar
 #recent= haml :recent, :layout => false
@@ -152,6 +178,14 @@ __END__
       %li
         %a{ :href => extension(blog.path) }= blog.name
         = "(#{hits})"
+
+@@ edit
+%h1= "Edit #{@title}"
+%form{ :action => path_for(@blog), :method => :post, :id => :comment_form }
+  %textarea{ :id => :body, :name => :body, :rows => 28, :cols => 82 }= @blog.body
+  %br
+  %input{ :id => :submit, :name => :edit, :value => :update, :type => :submit }
+  %a{ :href => path_for(@blog) } Cancel
 
 @@ blog
 - if @blog
@@ -194,7 +228,7 @@ __END__
           %input{ :id => :title, :name => :title, :type => :text, :size => 36 }
         %li
           %label comment
-          %textarea{ :id => :comment, :name => :comment, :rows => 8, :cols => 68 }
+          %textarea{ :id => :body, :name => :body, :rows => 8, :cols => 68 }
         %li
           %input{ :id => :checkout, :name => :checkout, :type => :hidden, :value => eval(equation) }
           %span
@@ -202,6 +236,6 @@ __END__
           = equation + " = "
           %input{ :id => :captca, :name => :captca, :type => :text, :size => 4 }
         %li
-          %input{ :id => :post, :name => :post, :value => :post, :type => :submit }
+          %input{ :id => :submit, :name => :comment, :value => :comment, :type => :submit }
 
 -#end-of-file # this is for Sinatra-Mode (http://github.com/eschulte/rinari/tree/sinatra)
