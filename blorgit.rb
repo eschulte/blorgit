@@ -16,6 +16,7 @@ set(:public, Blog.base_directory)
 enable(:static)
 set(:app_file, __FILE__)
 set(:haml, { :format => :html5, :attr_wrapper  => '"' })
+set(:root_path, 'food')
 use_in_file_templates!
 
 # Routes (http://sinatra.rubyforge.org/book.html#routes)
@@ -81,7 +82,10 @@ end
 helpers do
   def split_format(url) url.match(/(.+)\.(.+)/) ? [$1, $2] : [url, 'html'] end
 
-  def path_for(blog, options ={}) File.join('/', extension(blog.path, (options[:format] or nil))) end
+  def path_for(path, opts ={})
+    path = (path.class == Blog ? path.path : path)
+    File.join('/', options.root_path, extension(path, (opts[:format] or nil)))
+  end
   
   def show(blog, options={}) haml("%a{ :href => '#{path_for(blog)}' } #{blog.title}", :layout => false) end
 
@@ -133,7 +137,7 @@ __END__
         if(el.style.display == "none") { document.getElementById(item).style.display = "block" }
         else { document.getElementById(item).style.display = "none" }
       }
-  %link{:rel => "stylesheet", :type => "text/css", :href => "/"+$config['style']}
+  %link{:rel => "stylesheet", :type => "text/css", :href => path_for($config['style'], :format => 'css')}
   %title= "#{$config['title']}: #{@title}"
   %body
     #container
@@ -145,7 +149,7 @@ __END__
 @@ titlebar
 #title_pre
 #title
-  %a{ :href => '/', :title => 'home' }= $config['title']
+  %a{ :href => path_for(''), :title => 'home' }= $config['title']
 #title_post
 #search= haml :search, :layout => false
 - if @blog
@@ -153,7 +157,7 @@ __END__
     %ul
       - if $config['editable']
         %li
-          %a{ :href => File.join("/", ".edit", path_for(@blog)), :title => "edit #{@title}" } edit
+          %a{ :href => path_for(File.join(".edit", @blog.path)), :title => "edit #{@title}" } edit
       %li
         %a{ :href => path_for(@blog, :format => 'org'), :title => 'download as org-mode' } .org
       %li
@@ -166,7 +170,7 @@ __END__
   #dir= haml :dir, :locals => { :files => files }, :layout => false
 
 @@ search
-%form{ :action => '/.search', :method => :post, :id => :search }
+%form{ :action => path_for('.search'), :method => :post, :id => :search }
   %ul
     %li
       %input{ :id => :query, :name => :query, :type => :text, :size => 12 }
@@ -185,7 +189,7 @@ __END__
 %ul
   - files.each do |file|
     %li
-      %a{ :href => extension(file) + (File.directory?(Blog.expand(file)) ? "/" : "") }= File.basename(file)
+      %a{ :href => path_for(file) + (File.directory?(Blog.expand(file)) ? "/" : "") }= File.basename(file)
 
 @@ results
 #results_list
@@ -195,7 +199,7 @@ __END__
   %ul
     - @results.sort_by{ |b,h| -h }.each do |blog, hits|
       %li
-        %a{ :href => extension(blog.path) }= blog.name
+        %a{ :href => path_for(blog) }= blog.name
         = "(#{hits})"
 
 @@ edit
