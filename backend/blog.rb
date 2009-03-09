@@ -39,7 +39,7 @@ class Blog < ActiveFile::Base
   def subtree_properties(raw)
     props = {}
     raw.split("\n").
-      each{ |prop_line| props[$1.intern] = $2 if prop_line.match(/^[ \t]+:(.+):[ \t]+(.*)$/) } if
+      each{ |prop_line| props[$1.intern] = $2.chomp if prop_line.match(/^[ \t]+:(.+):[ \t]+(.*)$/) } if
       raw.match(/^[ \t]+:PROPERTIES:(.*):END:/m)
     props
   end
