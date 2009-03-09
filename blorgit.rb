@@ -130,8 +130,8 @@ __END__
     :javascript
       function toggle(item) {
         el = document.getElementById(item);
-        if(el.style.visibility == "visible") { document.getElementById(item).style.visibility = "hidden" }
-        else { document.getElementById(item).style.visibility = "visible" }
+        if(el.style.display == "none") { document.getElementById(item).style.display = "block" }
+        else { document.getElementById(item).style.display = "none" }
       }
   %link{:rel => "stylesheet", :type => "text/css", :href => "/"+$config['style']}
   %title= "#{$config['title']}: #{@title}"
@@ -236,7 +236,7 @@ __END__
 - unless commentable == 'closed'
   #new_comment
     %label{ :onclick => "toggle('comment_form');"} Post a new Comment
-    %form{ :action => path_for(@blog), :method => :post, :id => :comment_form, :style => 'visibility:hidden' }
+    %form{ :action => path_for(@blog), :method => :post, :id => :comment_form, :style => 'display:none' }
       - equation = "#{rand(10)} #{['+', '*', '-'].sort_by{rand}.first} #{rand(10)}"
       %ul
         %li
