@@ -1,4 +1,6 @@
 # blorgit --- blogging with org-mode
+$blogs_dir  ||= File.join(File.dirname(__FILE__), 'blogs')
+$url_prefix ||= '/'
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
@@ -6,22 +8,20 @@ require 'backend/init.rb'
 
 # Configuration (http://sinatra.rubyforge.org/book.html#configuration)
 #--------------------------------------------------------------------------------
-$config_file = File.join(Blog.base_directory, '.blorgit.yml')
-if File.exists?($config_file)
-  $config = YAML.load(File.read($config_file))
-else
-  $config = {}
-end
-set(:public, Blog.base_directory)
+puts "blogs_dir=#{$blogs_dir}"
+puts "url_prefix=#{$url_prefix}"
+config_file = File.join($blogs_dir, '.blorgit.yml')
+$config = File.exists?(config_file) ? YAML.load(File.read(config_file)) : {}
+set(:public, $blogs_dir)
 enable(:static)
 set(:app_file, __FILE__)
 set(:haml, { :format => :html5, :attr_wrapper  => '"' })
-set(:root_path, 'food')
+set(:url_prefix, $url_prefix)
 use_in_file_templates!
 
 # Routes (http://sinatra.rubyforge.org/book.html#routes)
 #--------------------------------------------------------------------------------
-get('/') { redirect('/'+$config['index']) }
+get('/') { redirect(path_for($config['index'])) }
 
 get(/^\/\.edit\/(.*)?$/) do
   pass unless $config['editable']
@@ -84,7 +84,7 @@ helpers do
 
   def path_for(path, opts ={})
     path = (path.class == Blog ? path.path : path)
-    File.join('/', options.root_path, extension(path, (opts[:format] or nil)))
+    File.join(options.url_prefix, extension(path, (opts[:format] or nil)))
   end
   
   def show(blog, options={}) haml("%a{ :href => '#{path_for(blog)}' } #{blog.title}", :layout => false) end
