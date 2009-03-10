@@ -54,3 +54,7 @@ git init
 git add .
 git commit -a -m "initial commit"
 </pre>
+
+For an example of instillation behind a web server see the [deployable
+branch](http://github.com/eschulte/blorgit/tree/deployable)
+
