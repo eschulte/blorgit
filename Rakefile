@@ -38,7 +38,8 @@ task :config do
                                                  'title' => 'Blorgit',
                                                  'index' => 'index',
                                                  'recent' => 0,
-                                                 'style' => 'stylesheet.css'
+                                                 'style' => 'stylesheet.css',
+                                                 'editable' => true
                                               }) }
   end
 end
@@ -55,10 +56,28 @@ task :index do
 #+TITLE:    blorgit
 #+OPTIONS: toc:nil ^:nil
 
-blog - org - git
+Welcome to *blorgit*, the blog backed by [[http://orgmode.org][org-mode]].
 
 Edit the =index.org= text file in your base directory to change the
 contents of this page.
+
+To remove the [edit] button (and the ability for users to edit page on
+this site) remove the
+
+: editable: true
+
+ line from the =.blorgit.yml= configuration file inside your =blogs=
+directory (Note it will still be possible for users to make comments
+on the site.).  To add password protection to edits add lines like the
+following to your configuration.
+
+: auth: 
+: - username
+: - password
+
+All configuration is handled through the =blogs/.blorgit.yml= file to
+allow easy maintenance of the application through git (or your version
+control system of choice).
 
 ORG
     end

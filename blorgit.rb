@@ -19,7 +19,20 @@ use_in_file_templates!
 
 # Routes (http://sinatra.rubyforge.org/book.html#routes)
 #--------------------------------------------------------------------------------
-get('/') { redirect(path_for($config['index'])) }
+get('/') do
+  if $config['index']
+    redirect(path_for($config['index']))
+  else
+    "It seems you haven't yet configured a blogs directory.  Try"+
+      " running <tt>rake new</tt> from the root. of your blorgit directory"
+  end
+end
+
+post(/^\/.search/) do
+  @query = params[:query]
+  @results = Blog.search(params[:query])
+  haml :results
+end
 
 get(/^\/\.edit\/(.*)?$/) do
   pass unless $config['editable']
@@ -37,42 +50,55 @@ get(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
   @files = (Blog.files(path) or [])
   @blog = Blog.find(path)
-  pass unless (@blog or File.directory?(Blog.expand(path)))
-  if format == 'html'
-    @title = @blog ? @blog.title : path
-    haml :blog
-  elsif @blog
-    content_type(format)
-    attachment extension(@blog.path, format)
-    @blog.send("to_#{format}")
+  if @blog or File.directory?(Blog.expand(path))
+    if format == 'html'
+      @title = @blog ? @blog.title : path
+      haml :blog
+    elsif @blog
+      content_type(format)
+      attachment extension(@blog.path, format)
+      @blog.send("to_#{format}")
+    else
+      pass
+    end
+  elsif $config['editable'] and extension(path, 'org').match(Blog.location_regexp)
+    pass if path.match(/^\./)
+    protected!
+    @path = path
+    haml :confirm_create
   else
-    pass
+    "Can't create a new page at #{path}"
   end
 end
 
 post(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
-  if @blog = Blog.find(path)
-    if params[:comment]
-      return "Sorry, review your math..." unless params[:checkout] == params[:captca]
-      @blog.add_comment(Comment.build(2, params[:title], params[:author], params[:body]))
-      @blog.save
-      redirect(path_for(@blog))
-    elsif params[:edit] and $config['editable']
-      protected!
+  @blog = Blog.find(path)
+  if params[:comment]
+    pass unless @blog
+    return "Sorry, review your math..." unless params[:checkout] == params[:captca]
+    @blog.add_comment(Comment.build(2, params[:title], params[:author], params[:body]))
+    @blog.save
+    redirect(path_for(@blog))
+  elsif $config['editable']
+    protected!
+    if @blog and params[:edit]
       @blog.body = params[:body]
       @blog.save
       redirect(path_for(@blog))
+    elsif extension(path, 'org').match(Blog.location_regexp)
+      @blog = Blog.new(:path => extension(path, 'org'),
+                       :body => "#+TITLE: #{File.basename(path)}\n#+OPTIONS: toc:nil ^:nil\n\n")
+      @blog.save
+      redirect(path_for(@blog))
+    elsif path.match(/^\./)
+      pass
+    else
+      "Can't create a new page at #{path}"
     end
   else
     pass
   end
-end
-
-post(/^\/.search/) do
-  @query = params[:query]
-  @results = Blog.search(params[:query])
-  haml :results
 end
 
 # Helpers (http://sinatra.rubyforge.org/book.html#helpers)
@@ -258,5 +284,14 @@ __END__
           %input{ :id => :captca, :name => :captca, :type => :text, :size => 4 }
         %li
           %input{ :id => :submit, :name => :comment, :value => :comment, :type => :submit }
+
+@@ confirm_create
+%form{ :action => path_for(@path), :method => 'post', :id => 'creation_form'}
+  %label
+    Create a new page at
+    %em= @path
+    ?
+  %input{ :id => 'submit', :name => 'submit', :value => 'create', :type => 'submit' }
+  %a{ :href => path_for('/') } cancel
 
 -#end-of-file # this is for Sinatra-Mode (http://github.com/eschulte/rinari/tree/sinatra)
