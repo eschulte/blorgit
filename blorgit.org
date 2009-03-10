@@ -20,6 +20,11 @@ single-file web applications.
 **** send_data
 http://sinatra.lighthouseapp.com/projects/9779/tickets/143-send_data-no-longer-present
 
+**** running under a url prefix
+- [[http://blog.tannerburson.com/2009/01/multiple-sinatra-90-applications-in-one.html][multiple-sinatra-90-applications-in-one]]
+**** deployment with capistrano and nginx
+- [[http://pemberthy.blogspot.com/2009/02/deploying-sinatra-applications-with.html][deploying-sinatra-w-capi-ngin-thin]]
+
 * tasks [3/4]
 ** DONE setup dir listing
 ** DONE setup a global object with title/description etc.

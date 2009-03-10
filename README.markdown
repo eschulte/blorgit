@@ -49,12 +49,17 @@ directory as a git repo, and post all future blogs, moderate comments
 and commentability of blogs, and manage configuration through git.
 
 <pre>
-cd ~/blogs
+cd ./blogs
 git init
 git add .
 git commit -a -m "initial commit"
 </pre>
 
-For an example of instillation behind a web server see the [deployable
-branch](http://github.com/eschulte/blorgit/tree/deployable)
+To change the location of the blogs directory, or for pointers on
+deploying behind a web-server, see the run.ru rackup file.  To run
+using the run.ru rackup file use a command like the following
+(requires the <tt>thin</tt> gem)
 
+<pre>
+./run.ru -sthin -p4567
+</pre>

@@ -1,5 +1,5 @@
 class Blog < ActiveFile::Base
-  self.base_directory = File.expand_path(File.join('~', 'blogs'))
+  self.base_directory = $blogs_dir
   self.location = ["**", :name, "org"]
   acts_as_org
 
