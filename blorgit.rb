@@ -8,8 +8,6 @@ require 'backend/init.rb'
 
 # Configuration (http://sinatra.rubyforge.org/book.html#configuration)
 #--------------------------------------------------------------------------------
-puts "blogs_dir=#{$blogs_dir}"
-puts "url_prefix=#{$url_prefix}"
 config_file = File.join($blogs_dir, '.blorgit.yml')
 $config = File.exists?(config_file) ? YAML.load(File.read(config_file)) : {}
 set(:public, $blogs_dir)
