@@ -1,6 +1,5 @@
 class Blog < ActiveFile::Base
   self.base_directory = $blogs_dir
-  puts "Blog.base_directory=#{$blogs_dir}"
   self.location = ["**", :name, "org"]
   acts_as_org
 
