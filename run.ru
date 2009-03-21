@@ -1,6 +1,7 @@
 #!/usr/bin/env rackup
 $blogs_dir  ||= File.expand_path(File.join(File.dirname(__FILE__), 'blogs'))
 $url_prefix ||= '/'
+# $no_batch = true # uncomment for color exportation of source code
 require File.join(File.dirname(__FILE__), "blorgit")
  
 # disable sinatra's auto-application starting
