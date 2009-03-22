@@ -75,7 +75,7 @@ post(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
   @blog = Blog.find(path)
   if params[:comment]
-    pass unless @blog
+    pass unless (@blog and $config['commentable'])
     return "Sorry, review your math..." unless params[:checkout] == params[:captca]
     @blog.add_comment(Comment.build(2, params[:title], params[:author], params[:body]))
     @blog.save
@@ -237,7 +237,7 @@ __END__
 @@ blog
 - if @blog
   #blog_body= @blog.to_html
-  - unless @blog.commentable == 'disabled'
+  - if ($config['commentable'] and (not @blog.commentable == 'disabled'))
     #comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable}, :layout => false)
 - else
   #dir= haml :dir, :locals => { :files => @files }, :layout => false

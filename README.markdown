@@ -29,11 +29,32 @@ git submodule update
 </pre>
 
 Create a blogs directory with the default configuration, and the
-default minimal theme
+default minimal theme (for a list of available themes run <tt>rake
+themes</tt>)
 
 <pre>
 rake new
 rake themes:default
+</pre>
+
+The configuration is controlled through a [YAML](http://www.yaml.org)
+file located at .blorgit.yml in the base of your blogs directory.
+Configuration variables can be used to control the title, index page,
+stylesheet, the number of recent entries shown in the sidebar,
+commentability, editability and optionally a password required for
+posting edits, .  The default configuration is...
+
+<pre>
+--- 
+title: Blorgit
+index: index
+style: stylesheet.css
+recent: 5
+commentable: true
+editable: false
+auth: 
+- admin
+- password
 </pre>
 
 Start sinatra with
@@ -58,7 +79,7 @@ git commit -a -m "initial commit"
 To change the location of the blogs directory, or for pointers on
 deploying behind a web-server, see the run.ru rackup file.  To run
 using the run.ru rackup file use a command like the following
-(requires the <tt>thin</tt> gem)
+(requires the <tt>thin</tt> gem <tt>sudo gem install thin</tt>)
 
 <pre>
 ./run.ru -sthin -p4567

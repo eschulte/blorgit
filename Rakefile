@@ -37,9 +37,11 @@ task :config do
     File.open(config, 'w') {|f| f << YAML.dump({
                                                  'title' => 'Blorgit',
                                                  'index' => 'index',
-                                                 'recent' => 0,
+                                                 'recent' => 5,
                                                  'style' => 'stylesheet.css',
-                                                 'editable' => true
+                                                 'commentable' => true,
+                                                 'editable' => false,
+                                                 'auth' => ['admin', 'password']
                                               }) }
   end
 end
