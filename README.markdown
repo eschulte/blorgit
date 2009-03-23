@@ -6,7 +6,7 @@
 Install the required gems
 
 <pre>
-sudo gem install sinatra haml activesupport
+sudo gem install rake sinatra haml activesupport
 </pre>
 
 Install blorgit
