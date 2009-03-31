@@ -1,6 +1,6 @@
 # blorgit --- blogging with org-mode
-$blogs_dir  ||= File.join(File.dirname(__FILE__), 'blogs')
-$url_prefix ||= '/'
+$blogs_dir  ||= '/var/www/food/blogs/'
+$url_prefix ||= '/food/'
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
