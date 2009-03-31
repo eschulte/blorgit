@@ -9,7 +9,7 @@ class Blog < ActiveFile::Base
       map{ |f| File.join(base, f) }.
       select{ |f| (File.directory?(f) or f.match(Blog.location_regexp)) }.
       map{ |f| f.sub(Blog.base_directory, '')}.
-      reject{ |f| f.match(/\/\./) }
+      reject{ |f| (f.match(/\/\./) or f.match(/^\./)) }
   end
 
   def self.search(query)
