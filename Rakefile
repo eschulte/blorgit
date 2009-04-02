@@ -39,6 +39,7 @@ task :config do
                                                  'index' => 'index',
                                                  'recent' => 5,
                                                  'style' => 'stylesheet.css',
+                                                 'favicon' => 'images/favicon.ico',
                                                  'commentable' => true,
                                                  'editable' => false,
                                                  'auth' => ['admin', 'password']
