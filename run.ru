@@ -1,6 +1,6 @@
 #!/usr/bin/env rackup
-$blogs_dir  ||= File.expand_path(File.join(File.dirname(__FILE__), 'blogs'))
-$url_prefix ||= '/'
+$blogs_dir  ||= '/var/www/food/blogs/'
+$url_prefix ||= '/food/'
 # $no_batch = true # uncomment for color exportation of source code
 require File.join(File.dirname(__FILE__), "blorgit")
  
@@ -10,7 +10,7 @@ disable :run
 # we're in dev mode
 set :environment, :development
 
-run Sinatra::Application
+# run Sinatra::Application
 
 # To run behind a prefix url
 # 
@@ -19,6 +19,6 @@ run Sinatra::Application
 # 2. comment out the run line immediately preceding this comment
 # 3. un-comment the following Rack map block
 # 
-# map $url_prefix do
-#   run Sinatra::Application
-# end
+map $url_prefix do
+  run Sinatra::Application
+end
