@@ -160,8 +160,9 @@ __END__
         el = document.getElementById(item);
         if(el.style.display == "none") { document.getElementById(item).style.display = "block" }
         else { document.getElementById(item).style.display = "none" }
-      }
-  %link{:rel => "stylesheet", :type => "text/css", :href => path_for($config['favicon'], :format => 'ico')}
+        }
+  - if $config['favicon']
+    %link{:rel => "stylesheet", :type => "text/css", :href => path_for($config['favicon'], :format => 'ico')}
   %link{:rel => "stylesheet", :type => "text/css", :href => path_for($config['style'], :format => 'css')}
   %title= "#{$config['title']}: #{@title}"
   %body
