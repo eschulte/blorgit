@@ -88,7 +88,7 @@ post(/^\/(.*)?$/) do
       redirect(path_for(@blog))
     elsif extension(path, 'org').match(Blog.location_regexp)
       @blog = Blog.new(:path => extension(path, 'org'),
-                       :body => "#+TITLE: #{File.basename(path)}\n#+OPTIONS: toc:nil ^:nil\n\n")
+                       :body => "# -*- mode: org -*-\n#+TITLE: #{File.basename(path)}\n#+OPTIONS: toc:nil ^:nil\n\n")
       @blog.save
       redirect(path_for(@blog))
     elsif path.match(/^\./)
