@@ -1,6 +1,6 @@
 # blorgit --- blogging with org-mode
-$blogs_dir  ||= '/var/www/food/blogs/'
-$url_prefix ||= '/food/'
+$blogs_dir  ||= '/Users/eschulte/Sites/blogs'
+$url_prefix ||= '/'
 require 'rubygems'
 require 'sinatra'
 require 'yaml'

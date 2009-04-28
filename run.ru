@@ -1,6 +1,6 @@
 #!/usr/bin/env rackup
-$blogs_dir  ||= '/var/www/food/blogs/'
-$url_prefix ||= '/food/'
+$blogs_dir  ||= '/Users/eschulte/Sites/blogs'
+$url_prefix ||= '/'
 # $no_batch = true # uncomment for color exportation of source code
 require File.join(File.dirname(__FILE__), "blorgit")
  
