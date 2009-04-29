@@ -1,6 +1,7 @@
 #!/usr/bin/env rackup
-$blogs_dir  ||= File.expand_path(File.join(File.dirname(__FILE__), 'blogs'))
-$url_prefix ||= '/'
+$global_config ||= YAML.load(File.read(File.join(File.dirname(__FILE__), 'blorgit.yml')))
+$blogs_dir  ||= File.expand_path($global_config[:blogs_dir])
+$url_prefix ||= $global_config[:url_prefix]
 # $no_batch = true # uncomment for color exportation of source code
 require File.join(File.dirname(__FILE__), "blorgit")
  

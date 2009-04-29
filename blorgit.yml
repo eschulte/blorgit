@@ -1,0 +1,9 @@
+# Use this file to configure blorgit
+#
+#   This is read by your Rakefile, by run.ru, and by blorgit.rb
+#
+--- 
+# blogs_dir: Directory containing the org-mode files to be published
+:blogs_dir: ~/blogs
+# url_prefix: Prefix behind which this application will be located
+:url_prefix: /

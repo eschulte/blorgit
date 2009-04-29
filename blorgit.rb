@@ -1,6 +1,7 @@
 # blorgit --- blogging with org-mode
-$blogs_dir  ||= File.join(File.dirname(__FILE__), 'blogs')
-$url_prefix ||= '/'
+$global_config ||= YAML.load(File.read(File.join(File.dirname(__FILE__), 'blorgit.yml')))
+$blogs_dir  ||= File.expand_path($global_config[:blogs_dir])
+$url_prefix ||= $global_config[:url_prefix]
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
