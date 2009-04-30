@@ -12,6 +12,12 @@ end
 # Load theme rake files
 Dir[File.join(File.dirname(__FILE__), "themes", "*", "*.rake")].each { |ext| load ext }
 
+desc "start the Emacs server to process org-mode files"
+task :emacs_server, :emacs_cmd do |t, args|
+  load_file = File.join($base, 'backend', 'acts_as_org', 'elisp', 'org-interaction.el')
+  puts %Q{#{args.emacs_cmd} -l #{load_file} &}
+end
+
 desc "return configuration information about the current setup"
 task :info do
   puts YAML.dump($global_config[:config])
