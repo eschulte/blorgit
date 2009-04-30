@@ -199,7 +199,7 @@ __END__
 @@ sidebar
 - if (config['recent'] and (config['recent'] > 0))
   #recent= haml :recent, :layout => false
-- if (config['dir_listing'] and @files)
+- if (config['dir_list'] and @files)
   #dir= haml :dir, :locals => { :files => files }, :layout => false
 
 @@ search
