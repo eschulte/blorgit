@@ -40,27 +40,7 @@ task :themes do
 end
 
 desc "create a new blorgit instance"
-task :new => [:config, :index]
-
-desc "drop a new default config file into #{File.join($blogs, '.blorgit.yml')}"
-task :config do
-  config = File.join($blogs, '.blorgit.yml')
-  if FileTest.exists?(config)
-    puts "A file already exists at #{config}"
-    abort
-  else
-    File.open(config, 'w') {|f| f << YAML.dump({
-                                                 'title' => 'Blorgit',
-                                                 'index' => 'index',
-                                                 'recent' => 5,
-                                                 'style' => 'stylesheet.css',
-                                                 'favicon' => 'images/favicon.ico',
-                                                 'commentable' => true,
-                                                 'editable' => false,
-                                                 'auth' => ['admin', 'password']
-                                              }) }
-  end
-end
+task :new => [:index]
 
 desc "drop a minimal index page into #{File.join($blogs, 'index.org')}"
 task :index do
