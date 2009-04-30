@@ -17,7 +17,7 @@
   commentable: true
   editable: true
   recent: 5
-  dir_list: false
+  dir_list: true
   favicon: images/favicon.ico
   style: stylesheet.css
   
