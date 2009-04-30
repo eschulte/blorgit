@@ -47,7 +47,26 @@ rake new
 rake themes:default
 </pre>
 
-### (4) Start Server
+### (4) Start Servers
+
+#### Emacs Server
+
+Starting your emacs server allows Emacs to act as a server which can
+then export org-mode file to html.  To do this we simply need to load
+the <tt>org-interaction.el</tt> file in <tt>acts_as_org</tt>.  You can
+do this by executing the following in emacs
+
+<pre>
+M-x load-file /path/to/blorgit/backend/acts_as_org/elisp/org-interaction.el
+</pre>
+
+or with the following shell command
+
+<pre>
+emacs -l backend/acts_as_org/elisp/org-interaction.el
+</pre>
+
+#### Web Server
 
 Start your sinatra web server with the following command
 
