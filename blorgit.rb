@@ -1,16 +1,14 @@
 # blorgit --- blogging with org-mode
-$global_config ||= YAML.load(File.read(File.join(File.dirname(__FILE__), 'blorgit.yml')))
-$blogs_dir  ||= File.expand_path($global_config[:blogs_dir])
-$url_prefix ||= $global_config[:url_prefix]
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
+$global_config ||= YAML.load(File.read(File.join(File.dirname(__FILE__), 'blorgit.yml')))
+$blogs_dir  ||= File.expand_path($global_config[:blogs_dir])
+$url_prefix ||= $global_config[:url_prefix]
 require 'backend/init.rb'
 
 # Configuration (http://sinatra.rubyforge.org/book.html#configuration)
 #--------------------------------------------------------------------------------
-config_file = File.join($blogs_dir, '.blorgit.yml')
-$config = File.exists?(config_file) ? YAML.load(File.read(config_file)) : {}
 set(:public, $blogs_dir)
 enable(:static)
 set(:app_file, __FILE__)
@@ -21,8 +19,8 @@ use_in_file_templates!
 # Routes (http://sinatra.rubyforge.org/book.html#routes)
 #--------------------------------------------------------------------------------
 get('/') do
-  if $config['index']
-    redirect(path_for($config['index']))
+  if config['index']
+    redirect(path_for(config['index']))
   else
     "It seems you haven't yet configured a blogs directory.  Try"+
       " running <tt>rake new</tt> from the root. of your blorgit directory"
@@ -36,7 +34,7 @@ post(/^\/.search/) do
 end
 
 get(/^\/\.edit\/(.*)?$/) do
-  pass unless $config['editable']
+  pass unless config['editable']
   path, format = split_format(params[:captures].first)
   if @blog = Blog.find(path)
     @title = @blog.title
@@ -62,7 +60,7 @@ get(/^\/(.*)?$/) do
     else
       pass
     end
-  elsif $config['editable'] and extension(path, 'org').match(Blog.location_regexp)
+  elsif config['editable'] and extension(path, 'org').match(Blog.location_regexp)
     pass if path.match(/^\./)
     protected!
     @path = path
@@ -76,12 +74,12 @@ post(/^\/(.*)?$/) do
   path, format = split_format(params[:captures].first)
   @blog = Blog.find(path)
   if params[:comment]
-    pass unless (@blog and $config['commentable'])
+    pass unless (@blog and config['commentable'])
     return "Sorry, review your math..." unless params[:checkout] == params[:captca]
     @blog.add_comment(Comment.build(2, params[:title], params[:author], params[:body]))
     @blog.save
     redirect(path_for(@blog))
-  elsif $config['editable']
+  elsif config['editable']
     protected!
     if @blog and params[:edit]
       @blog.body = params[:body]
@@ -105,6 +103,11 @@ end
 # Helpers (http://sinatra.rubyforge.org/book.html#helpers)
 #--------------------------------------------------------------------------------
 helpers do
+  def config
+    config_file = File.join(File.dirname(File.join($blogs_dir, (params[:captures] ? params[:captures].first : ''))), '.blorgit.yml')
+    $global_config[:config].merge((File.exists?(config_file)) ? YAML.load(File.read(config_file)) : {})
+  end
+  
   def split_format(url) url.match(/(.+)\.(.+)/) ? [$1, $2] : [url, 'html'] end
 
   def path_for(path, opts ={})
@@ -138,12 +141,12 @@ helpers do
   def protected!
     response['WWW-Authenticate'] = %(Basic realm="username and password required") and \
     throw(:halt, [401, "Not authorized\n"]) and \
-    return unless ((not $config['auth']) or authorized?)
+    return unless ((not config['auth']) or authorized?)
   end
 
   def authorized?
     @auth ||=  Rack::Auth::Basic::Request.new(request.env)
-    @auth.provided? && @auth.basic? && @auth.credentials && @auth.credentials == $config['auth']
+    @auth.provided? && @auth.basic? && @auth.credentials && @auth.credentials == config['auth']
   end
 
 end
@@ -162,10 +165,10 @@ __END__
         if(el.style.display == "none") { document.getElementById(item).style.display = "block" }
         else { document.getElementById(item).style.display = "none" }
         }
-  - if $config['favicon']
-    %link{:rel => "icon", :type => "image/x-icon", :href => path_for($config['favicon'], :format => 'ico')}
-  %link{:rel => "stylesheet", :type => "text/css", :href => path_for($config['style'], :format => 'css')}
-  %title= "#{$config['title']}: #{@title}"
+  - if config['favicon']
+    %link{:rel => "icon", :type => "image/x-icon", :href => path_for(config['favicon'], :format => 'ico')}
+  %link{:rel => "stylesheet", :type => "text/css", :href => path_for(config['style'], :format => 'css')}
+  %title= "#{config['title']}: #{@title}"
   %body
     #container
       #titlebar= render(:haml, :titlebar, :layout => false)
@@ -176,13 +179,13 @@ __END__
 @@ titlebar
 #title_pre
 #title
-  %a{ :href => path_for(''), :title => 'home' }= $config['title']
+  %a{ :href => path_for(''), :title => 'home' }= config['title']
 #title_post
 #search= haml :search, :layout => false
 - if @blog
   #actions
     %ul
-      - if $config['editable']
+      - if config['editable']
         %li
           %a{ :href => path_for(File.join(".edit", @blog.path)), :title => "edit #{@title}" } edit
       %li
@@ -192,8 +195,9 @@ __END__
 #title_separator
 
 @@ sidebar
-#recent= haml :recent, :layout => false
-- if @files
+- if (config['recent'] and (config['recent'] > 0))
+  #recent= haml :recent, :layout => false
+- if (config['dir_listing'] and @files)
   #dir= haml :dir, :locals => { :files => files }, :layout => false
 
 @@ search
@@ -207,7 +211,7 @@ __END__
 @@ recent
 %label Recent
 %ul
-  - Blog.all.sort_by(&:ctime).reverse[(0..($config['recent'] - 1))].each do |blog|
+  - Blog.all.sort_by(&:ctime).reverse[(0..(config['recent'] - 1))].each do |blog|
     %li
       %a{ :href => path_for(blog)}= blog.title
 
@@ -240,7 +244,7 @@ __END__
 @@ blog
 - if @blog
   #blog_body= @blog.to_html
-  - if ($config['commentable'] and (not @blog.commentable == 'disabled'))
+  - if (config['commentable'] and (not @blog.commentable == 'disabled'))
     #comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable}, :layout => false)
 - else
   #dir= haml :dir, :locals => { :files => @files }, :layout => false

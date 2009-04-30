@@ -7,3 +7,17 @@
 :blogs_dir: ~/blogs
 # url_prefix: Prefix behind which this application will be located
 :url_prefix: /
+# set default configuration options
+:config:
+  auth: 
+  - admin
+  - password
+  title: Blorgit
+  index: index
+  commentable: true
+  editable: true
+  recent: 5
+  dir_list: false
+  favicon: images/favicon.ico
+  style: stylesheet.css
+  
