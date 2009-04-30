@@ -104,8 +104,10 @@ end
 #--------------------------------------------------------------------------------
 helpers do
   def config
+    $local_config_file ||= File.join($blogs_dir, '.blorgit.yml')
+    $local_config ||= $global_config[:config].merge(File.exists?($local_config_file) ? YAML.load(File.read($local_config_file)) : {})
     config_file = File.join(File.dirname(File.join($blogs_dir, (params[:captures] ? params[:captures].first : ''))), '.blorgit.yml')
-    $global_config[:config].merge((File.exists?(config_file)) ? YAML.load(File.read(config_file)) : {})
+    $local_config.merge((File.exists?(config_file)) ? YAML.load(File.read(config_file)) : {})
   end
   
   def split_format(url) url.match(/(.+)\.(.+)/) ? [$1, $2] : [url, 'html'] end
