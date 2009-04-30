@@ -16,6 +16,7 @@ desc "start the Emacs server to process org-mode files"
 task :emacs_server, :emacs_cmd do |t, args|
   load_file = File.join($base, 'backend', 'acts_as_org', 'elisp', 'org-interaction.el')
   puts %Q{#{args.emacs_cmd} -l #{load_file} &}
+  puts %x{#{args.emacs_cmd} -l #{load_file} &}
 end
 
 desc "return configuration information about the current setup"
