@@ -4,9 +4,9 @@
 #
 --- 
 # blogs_dir: Directory containing the org-mode files to be published
-:blogs_dir: ~/blogs
+:blogs_dir: /var/www/food/blogs/
 # url_prefix: Prefix behind which this application will be located
-:url_prefix: /
+:url_prefix: /food/
 # set default configuration options
 :config:
   auth: 
