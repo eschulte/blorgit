@@ -14,7 +14,7 @@ Dir[File.join(File.dirname(__FILE__), "themes", "*", "*.rake")].each { |ext| loa
 
 desc "return configuration information about the current setup"
 task :info do
-  puts YAML.dump($config)
+  puts YAML.dump($global_config[:config])
   puts "base: #{$base}"
   puts "blog_directory: #{$blogs}"
 end
