@@ -1,4 +1,3 @@
-require 'find'
 require 'blorgit'
 $base = File.dirname(__FILE__)
 $blogs = Blog.base_directory
@@ -16,12 +15,12 @@ Dir[File.join(File.dirname(__FILE__), "themes", "*", "*.rake")].each { |ext| loa
 # handle exported files
 def all_exported(dir) Dir.chdir($blogs){ Dir['**/.exported_*'].each{ |path| yield(path) } } end
 namespace :exported do
-  desc "list all exported files"
+  desc "list all temporary exported files"
   task :list do
     all_exported($blogs){ |path| puts path }
   end
 
-  desc "delete all exported files"
+  desc "delete all temporary exported files"
   task :delete do
     all_exported($blogs){ |path| FileUtils.rm(path) }
   end
