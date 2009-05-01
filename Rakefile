@@ -1,4 +1,3 @@
-require 'find'
 require 'blorgit'
 $base = File.dirname(__FILE__)
 $blogs = Blog.base_directory
@@ -16,12 +15,12 @@ Dir[File.join(File.dirname(__FILE__), "themes", "*", "*.rake")].each { |ext| loa
 # handle exported files
 def all_exported(dir) Dir.chdir($blogs){ Dir['**/.exported_*'].each{ |path| yield(path) } } end
 namespace :exported do
-  desc "list all exported files"
+  desc "list all temporary exported files"
   task :list do
     all_exported($blogs){ |path| puts path }
   end
 
-  desc "delete all exported files"
+  desc "delete all temporary exported files"
   task :delete do
     all_exported($blogs){ |path| FileUtils.rm(path) }
   end
@@ -40,27 +39,7 @@ task :themes do
 end
 
 desc "create a new blorgit instance"
-task :new => [:config, :index]
-
-desc "drop a new default config file into #{File.join($blogs, '.blorgit.yml')}"
-task :config do
-  config = File.join($blogs, '.blorgit.yml')
-  if FileTest.exists?(config)
-    puts "A file already exists at #{config}"
-    abort
-  else
-    File.open(config, 'w') {|f| f << YAML.dump({
-                                                 'title' => 'Blorgit',
-                                                 'index' => 'index',
-                                                 'recent' => 5,
-                                                 'style' => 'stylesheet.css',
-                                                 'favicon' => 'images/favicon.ico',
-                                                 'commentable' => true,
-                                                 'editable' => false,
-                                                 'auth' => ['admin', 'password']
-                                              }) }
-  end
-end
+task :new => [:index]
 
 desc "drop a minimal index page into #{File.join($blogs, 'index.org')}"
 task :index do

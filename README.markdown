@@ -84,7 +84,7 @@ View at [localhost:4567](http://localhost:4567)
 ### Changing Configuration Options
 
 The configuration is controlled through a [YAML](http://www.yaml.org)
-file located at <tt>.blorgit.yml</tt> in the base of your blogs
+file located at <tt>blorgit.yml</tt> in your blorgit instillation
 directory.  Configuration variables can be used to control the
 **title**, **index page**, **stylesheet**, the number of **recent
 entries** shown in the sidebar, **commentability**, **editability**
