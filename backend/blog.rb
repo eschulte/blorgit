@@ -3,6 +3,14 @@ class Blog < ActiveFile::Base
   self.location = ["**", :name, "org"]
   acts_as_org
 
+  add_hooks(:save)
+
+  def after_save
+    Dir.chdir(Blog.base_directory) do
+      %x{git add #{self.path} && git commit -a -m "#{self.path} updated through web interface" && git push}
+    end
+  end
+  
   def self.files(path)
     base = (File.directory?(self.expand(path)) ? self.expand(path) : File.dirname(self.expand(path)))
     self.entries(path).
@@ -16,7 +24,7 @@ class Blog < ActiveFile::Base
     # self.all.select{ |b| b.body.match(/#{query}/im) }
     self.all.map{ |b| [b, b.body.split(/#{query}/im).size - 1] }.select{ |blog, hits| hits > 0 }
   end
-  
+
   def title() ((self.body.match(/^#\+TITLE:[ \t]?(.+?)$/) and $1) or self.name) end
   def comment_section() self.body[$~.end(0)..-1] if self.body.match(/^\* COMMENT Comments$/) end
   def comments() Comment.parse(self.comment_section) end
