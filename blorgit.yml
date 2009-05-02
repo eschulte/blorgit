@@ -20,4 +20,4 @@
   dir_list: false
   favicon: images/favicon.ico
   style: stylesheet.css
-  
+  git_commit: false
