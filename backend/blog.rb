@@ -5,7 +5,7 @@ class Blog < ActiveFile::Base
 
   add_hooks(:save)
 
-  def after_save_hook() %x{git commit -a -m "updated through web interface" && git push} end
+  def after_save_hook() Dir.chdir(base_directory){ %x{git commit -a -m "updated through web interface" && git push} } end
   
   def self.files(path)
     base = (File.directory?(self.expand(path)) ? self.expand(path) : File.dirname(self.expand(path)))
