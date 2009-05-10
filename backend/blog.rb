@@ -3,14 +3,20 @@ class Blog < ActiveFile::Base
   self.location = ["**", :name, "org"]
   acts_as_org
 
-  add_hooks(:save)
+  # If the git_commit option is set then add a hook to automatically
+  # commit any changes from the web interface to git, and push
+  if $global_config[:config]['git_commit']
+    puts "adding git commit hooks Blog.after_save"
+    
+    add_hooks(:save)
 
-  def after_save
-    Dir.chdir(Blog.base_directory) do
-      %x{git add #{self.path} && git commit -a -m "#{self.path} updated through web interface" && git push}
+    def after_save
+      Dir.chdir(Blog.base_directory) do
+        %x{git add #{self.path} && git commit -a -m "#{self.path} updated through web interface" && git push}
+      end
     end
   end
-  
+
   def self.files(path)
     base = (File.directory?(self.expand(path)) ? self.expand(path) : File.dirname(self.expand(path)))
     self.entries(path).
