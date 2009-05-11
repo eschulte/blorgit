@@ -168,10 +168,10 @@ __END__
         if(el.style.display == "none") { document.getElementById(item).style.display = "block" }
         else { document.getElementById(item).style.display = "none" }
         }
-  - if config['favicon']
-    %link{:rel => "icon", :type => "image/x-icon", :href => path_for(config['favicon'], :format => 'ico')}
-  %link{:rel => "stylesheet", :type => "text/css", :href => path_for(config['style'], :format => 'css')}
-  %title= "#{config['title']}: #{@title}"
+    - if config['favicon']
+      %link{:rel => "icon", :type => "image/x-icon", :href => path_for(config['favicon'], :format => 'ico')}
+    %link{:rel => "stylesheet", :type => "text/css", :href => path_for(config['style'], :format => 'css')}
+    %title= "#{config['title']}: #{@title}"
   %body
     #container
       #titlebar= render(:haml, :titlebar, :layout => false)
