@@ -81,6 +81,10 @@ must set a "activated" field to true)
 once this is in place it should be used for comments, and for git
 commits.
 
+might be easy to use openID
+- [[http://openidenabled.com/ruby-openid/][ruby-openid]]
+- [[http://github.com/ahaller/sinatra-openid-consumer-example/tree/master][github/example-sinatra-openid]]
+
 ** MAYBE optionally read sidebar/title info from template files
 
 ** MAYBE add support for ruby 1.9
