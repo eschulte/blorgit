@@ -1,6 +1,7 @@
 # blorgit --- blogging with org-mode
 require 'rubygems'
 require 'sinatra'
+require 'backend/rewrite_content_disposition'
 require 'yaml'
 $global_config ||= YAML.load(File.read(File.join(File.dirname(__FILE__), 'blorgit.yml')))
 $blogs_dir  ||= File.expand_path($global_config[:blogs_dir])
@@ -9,6 +10,7 @@ require 'backend/init.rb'
 
 # Configuration (http://sinatra.rubyforge.org/book.html#configuration)
 #--------------------------------------------------------------------------------
+use RewriteContentDisposition, {"org" => "attachment"}
 set(:public, $blogs_dir)
 enable(:static)
 set(:app_file, __FILE__)

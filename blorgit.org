@@ -25,7 +25,7 @@ http://sinatra.lighthouseapp.com/projects/9779/tickets/143-send_data-no-longer-p
 **** deployment with capistrano and nginx
 - [[http://pemberthy.blogspot.com/2009/02/deploying-sinatra-applications-with.html][deploying-sinatra-w-capi-ngin-thin]]
 
-* tasks [6/7]
+* tasks [11/11]
 ** DONE setup dir listing
 ** DONE setup a global object with title/description etc.
 this lives in the root of the blogs directory at =.blorgit.yml=
@@ -46,9 +46,40 @@ add a after-save hook for when a blog is saved.
 
 then use this to implement a simple git commit
 
-** TODO users
+The following will push on every commit
+#+begin_example 
+echo 'git push' > .git/hooks/post-commit
+#+end_example
+** DONE setup dir listing
+** DONE setup a global object with title/description etc.
+this lives in the root of the blogs directory at =.blorgit.yml=
+** DONE directory local blorgit config
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2009-05-02 Sat 10:29]
+   - State "TODO"       from ""           [2009-04-09 Thu 13:32]
+   :END:
+Rather than one global blorgit config file, try searching down through
+the directories, so that more precise site-configs can be used.
+
+** DONE set org-mode content type correctly
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2009-05-14 Thu 06:17]
+   - State "TODO"       from ""           [2009-05-13 Wed 20:31]
+   :END:
+something along these lines will help [[http://www.hokstad.com/rewriting-content-types-with-rack.html][rewriting-content-types-with-rack]]
+
+implemented in [[file:rewrite_content_disposition.rb][rewrite_content_disposition.rb]]
+
+** MAYBE users
 should be read from a yaml file in the blogs directory (allowing
 maintenance through git/VC)
+
+would require some form of password hashing (add a 'signup' form which
+users can use to add themselves to the users yaml file, then admin
+must set a "activated" field to true)
+
+once this is in place it should be used for comments, and for git
+commits.
 
 ** MAYBE optionally read sidebar/title info from template files
 
