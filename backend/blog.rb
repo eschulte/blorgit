@@ -17,6 +17,20 @@ class Blog < ActiveFile::Base
     end
   end
 
+  # if the svn_commit option is set then add a hook to automatically
+  # commit any changes from the web interface to svn.
+  if $global_config[:config]['svn_commit']
+    puts "adding svn commit hooks Blog.after_save"
+
+    add_hooks(:save)
+
+    def after_save
+      Dir.chdir(Blog.base_directory) do
+        %x{svn add #{self.path} && svn ci -m "#{self.path} updated through the web interface" #{self.path}}
+      end
+    end
+  end
+
   def self.files(path)
     base = (File.directory?(self.expand(path)) ? self.expand(path) : File.dirname(self.expand(path)))
     self.entries(path).
