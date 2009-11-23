@@ -197,6 +197,8 @@ __END__
         %a{ :href => path_for(@blog, :format => 'org'), :title => 'download as org-mode' } .org
       %li
         %a{ :href => path_for(@blog, :format => 'tex'), :title => 'download as LaTeX' } .tex
+      %li
+        %a{ :href => path_for(@blog, :format => 'pdf'), :title => 'download as PDF' } .pdf
 #title_separator
 
 @@ sidebar
