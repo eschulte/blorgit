@@ -86,6 +86,7 @@ post(/^\/(.*)?$/) do
     protected!
     if @blog and params[:edit]
       @blog.body = params[:body]
+      @blog.change_log = params[:change_log] if params[:change_log]
       @blog.save
       redirect(path_for(@blog))
     elsif extension(path, 'org').match(Blog.location_regexp)
@@ -245,6 +246,8 @@ __END__
 %form{ :action => path_for(@blog), :method => :post, :id => :comment_form }
   %textarea{ :id => :body, :name => :body, :rows => 28, :cols => 82 }= @blog.body
   %br
+  Change log:
+  %input{ :id => :change_log, :name => :change_log, :type => :text }
   %input{ :id => :submit, :name => :edit, :value => :update, :type => :submit }
   %a{ :href => path_for(@blog) } Cancel
 

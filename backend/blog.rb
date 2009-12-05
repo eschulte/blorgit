@@ -1,18 +1,21 @@
 class Blog < ActiveFile::Base
   self.base_directory = $blogs_dir
   self.location = ["**", :name, "org"]
+  attr_accessor :change_log
   acts_as_org
 
   # If the git_commit option is set then add a hook to automatically
   # commit any changes from the web interface to git, and push
   if $global_config[:config]['git_commit']
-    puts "adding git commit hooks Blog.after_save"
-    
     add_hooks(:save)
 
     def after_save
       Dir.chdir(Blog.base_directory) do
-        %x{git add #{self.path} && git commit -a -m "#{self.path} updated through web interface" && git push}
+        if self.change_log
+          %x{git add #{self.path} && git commit -a -m "#{self.path}: #{self.change_log}" && git push}
+        else
+          %x{git add #{self.path} && git commit -a -m "#{self.path} updated through web interface" && git push}
+        end
       end
     end
   end
@@ -20,13 +23,15 @@ class Blog < ActiveFile::Base
   # if the svn_commit option is set then add a hook to automatically
   # commit any changes from the web interface to svn.
   if $global_config[:config]['svn_commit']
-    puts "adding svn commit hooks Blog.after_save"
-
     add_hooks(:save)
 
     def after_save
       Dir.chdir(Blog.base_directory) do
-        %x{svn add #{self.path} && svn ci -m "#{self.path} updated through the web interface" #{self.path}}
+        if self.change_log
+          %x{svn add #{self.path} && svn ci -m "#{self.path}: #{self.change_log}" #{self.path}}
+        else
+          %x{svn add #{self.path} && svn ci -m "#{self.path} updated through the web interface" #{self.path}}
+        end
       end
     end
   end
