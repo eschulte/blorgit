@@ -16,8 +16,7 @@ enable(:static)
 set(:app_file, __FILE__)
 set(:haml, { :format => :html5, :attr_wrapper  => '"' })
 set(:url_prefix, $url_prefix)
-use_in_file_templates!
-mime(:org, 'text/org')
+mime_type(:org, 'text/org')
 
 # Routes (http://sinatra.rubyforge.org/book.html#routes)
 #--------------------------------------------------------------------------------
