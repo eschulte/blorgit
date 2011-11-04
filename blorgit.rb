@@ -11,7 +11,7 @@ require 'backend/init.rb'
 # Configuration (http://sinatra.rubyforge.org/book.html#configuration)
 #--------------------------------------------------------------------------------
 use RewriteContentDisposition, {"org" => "attachment"}
-set(:public, $blogs_dir)
+set(:public_folder, $blogs_dir)
 enable(:static)
 set(:app_file, __FILE__)
 set(:haml, { :format => :html5, :attr_wrapper  => '"' })
