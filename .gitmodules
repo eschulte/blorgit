@@ -1,9 +1,9 @@
 [submodule "backend/active_file"]
 	path = backend/active_file
-	url = git://github.com/eschulte/active_file.git
+	url = git://github.com/jianingy/active_file.git
 [submodule "backend/acts_as_org"]
 	path = backend/acts_as_org
-	url = git://github.com/eschulte/acts_as_org.git
+	url = git://github.com/jianingy/acts_as_org.git
 [submodule "themes"]
 	path = themes
-	url = git://github.com/eschulte/blorgit_themes.git
+	url = git://github.com/jianingy/blorgit_themes.git

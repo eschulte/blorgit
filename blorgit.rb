@@ -7,6 +7,19 @@ $global_config ||= YAML.load(File.read(File.join(File.dirname(__FILE__), 'blorgi
 $blogs_dir  ||= File.expand_path($global_config[:blogs_dir])
 $url_prefix ||= $global_config[:url_prefix]
 require 'backend/init.rb'
+require 'backend/auth.rb'
+
+# Initialize auth engine
+
+if $global_config[:config]['auth'].class == Array
+  puts "Auth Engine: Simple"
+  username, password = $global_config[:config]['auth']
+  $auth_engine = SimpleAuth.new(username, password)
+elsif %r{^hints://}.match $global_config[:config]['auth']
+  puts "Auth Engine: Hints"
+  $auth_engine = HintFileAuth.new($global_config[:config]['auth'][8..-1])
+end
+
 
 # Configuration (http://sinatra.rubyforge.org/book.html#configuration)
 #--------------------------------------------------------------------------------
@@ -38,6 +51,7 @@ end
 get(/^\/\.edit\/(.*)?$/) do
   pass unless config['editable']
   path, format = split_format(params[:captures].first)
+  protected! params[:captures].first, "write"
   if @blog = Blog.find(path)
     @title = @blog.title
     @files = (Blog.files(path) or [])
@@ -52,6 +66,7 @@ get(/^\/(.*)?$/) do
   @files = (Blog.files(path) or [])
   @blog = Blog.find(path)
   if @blog or File.directory?(Blog.expand(path))
+    protected! params[:captures].first, "read"
     if format == 'html'
       @title = @blog ? @blog.title : path
       haml :blog
@@ -64,7 +79,7 @@ get(/^\/(.*)?$/) do
     end
   elsif config['editable'] and extension(path, 'org').match(Blog.location_regexp)
     pass if path.match(/^\./)
-    protected!
+    protected! params[:captures].first, "read"
     @path = path
     haml :confirm_create
   else
@@ -82,7 +97,7 @@ post(/^\/(.*)?$/) do
     @blog.save
     redirect(path_for(@blog))
   elsif config['editable']
-    protected!
+    protected! params[:captures].first, "write"
     if @blog and params[:edit]
       @blog.body = params[:body]
       @blog.change_log = params[:change_log] if params[:change_log]
@@ -143,15 +158,25 @@ helpers do
   end
 
   # from http://www.sinatrarb.com/faq.html#auth
-  def protected!
-    response['WWW-Authenticate'] = %(Basic realm="username and password required") and \
-    throw(:halt, [401, "Not authorized\n"]) and \
-    return unless ((not config['auth']) or authorized?)
+  def protected!(path, perm)
+    return if allowed?(path, perm)
+    unless authorized?
+      response['WWW-Authenticate'] = %(Basic realm="username and password required")
+      throw(:halt, [401, "401 Not authorized\n"])
+    end
+    throw(:halt, [403, "403 Forbbiden\n"]) unless allowed?(path, perm)
   end
 
   def authorized?
     @auth ||=  Rack::Auth::Basic::Request.new(request.env)
-    @auth.provided? && @auth.basic? && @auth.credentials && @auth.credentials == config['auth']
+    @auth.provided? && @auth.basic? && @auth.credentials \
+    && $auth_engine.authorized?(*@auth.credentials)
+  end
+
+  def allowed?(path, perm)
+    user, password = "anonymous", ""
+    user, password = @auth.credentials unless @auth.nil?
+    $auth_engine.allowed?(user, '/' + path, perm)
   end
 
 end
