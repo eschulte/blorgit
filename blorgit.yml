@@ -2,14 +2,16 @@
 #
 #   This is read by your Rakefile, by run.ru, and by blorgit.rb
 #
----
+--- 
 # blogs_dir: Directory containing the org-mode files to be published
 :blogs_dir: ~/blogs
 # url_prefix: Prefix behind which this application will be located
 :url_prefix: /
 # set default configuration options
 :config:
-  auth: hints:///home/jianingy/blogs/auth.hints
+  auth: 
+  - admin
+  - password
   title: Blorgit
   index: index
   commentable: true
