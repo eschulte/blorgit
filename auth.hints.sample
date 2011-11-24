@@ -1,0 +1,13 @@
+# user section
+adduser anonymous with encrypted_password d41d8cd98f00b204e9800998ecf8427e
+adduser jianingy with encrypted_password 827ccb0eea8a706c4c34a16891f84e7b
+adduser yuting with encrypted_password 827ccb0eea8a706c4c34a16891f84e7b
+
+# group section
+addgroup @staff with user jianingy,yuting
+
+# rule section
+path ^/.* allow @staff to write
+path ^/project/.* allow @staff to read
+path ^/project/ deny @all to read
+path ^/.* allow @all to read
