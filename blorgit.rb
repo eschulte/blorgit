@@ -255,7 +255,7 @@ __END__
   #blog_body= @blog.to_html
   - if (config['commentable'] and (not @blog.commentable == 'disabled'))
     - if (config['commentable'] == 'disqus')
-      #comments= render(:haml, :disqus, :locals => {}, :layout => false)
+      #comments= render(:haml, :disqus, :locals => {:shortname => config['disqus']['shortname']}, :layout => false)
     - else
       #comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable}, :layout => false)
 - else
@@ -265,7 +265,7 @@ __END__
 %div{:id => "disqus_thread"}
 :javascript
   /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-  var disqus_shortname = 'example'; // required: replace example with your forum shortname
+  var disqus_shortname = '#{shortname}'; // required: replace example with your forum shortname
 
    /* * * DON'T EDIT BELOW THIS LINE * * */
   (function() {
