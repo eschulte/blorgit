@@ -277,7 +277,7 @@ __END__
 
 @@ blog
 - if @blog
-  #blog_body= @blog.to_html
+  #blog_body= find_and_preserve @blog.to_html
   - if (config['commentable'] and (not @blog.commentable == 'disabled'))
     #comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable}, :layout => false)
 - else
