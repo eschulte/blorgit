@@ -254,9 +254,33 @@ __END__
 - if @blog
   #blog_body= @blog.to_html
   - if (config['commentable'] and (not @blog.commentable == 'disabled'))
-    #comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable}, :layout => false)
+    - if (config['commentable'] == 'disqus')
+      #comments= render(:haml, :disqus, :locals => {}, :layout => false)
+    - else
+      #comments= render(:haml, :comments, :locals => {:comments => @blog.comments, :commentable => @blog.commentable}, :layout => false)
 - else
   #dir= haml :dir, :locals => { :files => @files }, :layout => false
+
+@@ disqus
+%div{:id => "disqus_thread"}
+:javascript
+  /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  var disqus_shortname = 'example'; // required: replace example with your forum shortname
+
+   /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+%noscript
+  Please enable JavaScript to view the
+  %a{:href => "http://disqus.com/?ref_noscript"} comments
+  powered by Disqus.
+
+%a{:href => "http://disqus.com", :class => "dsq-brlink"}
+  blog comments powered by
+  %span{:class => "logo-disqus"} Disqus
 
 @@ comments
 #existing_commment
