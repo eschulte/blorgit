@@ -211,7 +211,7 @@ __END__
 #title
   %a{ :href => path_for(''), :title => 'home' }= config['title']
 #title_post
-#search= haml :search, :layout => false
+#searchbox= haml :search, :layout => false
 - if @blog
   #actions
     %ul
