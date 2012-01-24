@@ -11,7 +11,6 @@ class SimpleAuth < ActiveFile::Base
   end
 
   def allowed?(user, path, perm)
-    puts "AA: #{user} #{path} #{perm}"
     return true unless user == 'anonymous'
   end
 
@@ -21,7 +20,6 @@ class HintFileAuth < ActiveFile::Base
 
   def initialize(hints)
     @users, @groups, @rules = {}, {}, []
-    puts hints
     File.readlines(hints).each do |rule|
       rule.strip!
       next if rule.start_with?('#') or rule.empty?
