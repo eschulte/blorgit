@@ -127,18 +127,18 @@ helpers do
     config_file = File.join(File.dirname(File.join($blogs_dir, (params[:captures] ? params[:captures].first : ''))), '.blorgit.yml')
     $local_config.merge((File.exists?(config_file)) ? YAML.load(File.read(config_file)) : {})
   end
-  
+
   def split_format(url) url.match(/(.+)\.(.+)/) ? [$1, $2] : [url, 'html'] end
 
   def path_for(path, opts ={})
     path = (path.class == Blog ? path.path : path)
     File.join(options.url_prefix, extension(path, (opts[:format] or nil)))
   end
-  
+
   def show(blog, options={}) haml("%a{ :href => '#{path_for(blog)}' } #{blog.title}", :layout => false) end
 
   def comment(blog, parent_comment) end
-  
+
   def extension(path, format = nil) (path.match(/^(.+)\..+$/) ? $1 : path)+(format ? "."+format : '') end
 
   def time_ago(from_time)
@@ -227,10 +227,12 @@ __END__
 #title_separator
 
 @@ sidebar
-- if (config['recent'] and (config['recent'] > 0))
-  #recent= haml :recent, :layout => false
-- if (config['dir_list'] and @files)
-  #dir= haml :dir, :locals => { :files => files }, :layout => false
+- if (config['sidebar'])
+  - config['sidebar'].each do |item|
+    - if (item['recent'] and item['recent'] > 0)
+      #recent= haml :recent, :layout => false
+    - if (item['dir_list'] and @files)
+      #dir= haml :dir, :locals => { :files => files }, :layout => false
 
 @@ search
 %form{ :action => path_for('.search'), :method => :post, :id => :search }
