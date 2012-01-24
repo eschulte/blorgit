@@ -233,6 +233,8 @@ __END__
       #recent= haml :recent, :locals => { :recent => item['recent'] }, :layout => false
     - if (item['dir_list'] and @files)
       #dir= haml :dir, :locals => { :files => files }, :layout => false
+    - if (item['html'] and File.exists? item['html'])
+      %div{:id=> File.basename(item['html'], File.extname(item['html']))}= haml :html, :locals => { :file => item['html'] }, :layout => false
 
 @@ search
 %form{ :action => path_for('.search'), :method => :post, :id => :search }
@@ -255,6 +257,9 @@ __END__
   - files.each do |file|
     %li
       %a{ :href => path_for(file) + (File.directory?(Blog.expand(file)) ? "/" : "") }= File.basename(file)
+
+@@ html
+=File.open(file, "r").read
 
 @@ results
 #results_list
