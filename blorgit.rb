@@ -230,7 +230,7 @@ __END__
 - if (config['sidebar'])
   - config['sidebar'].each do |item|
     - if (item['recent'] and item['recent'] > 0)
-      #recent= haml :recent, :layout => false
+      #recent= haml :recent, :locals => { :recent => item['recent'] }, :layout => false
     - if (item['dir_list'] and @files)
       #dir= haml :dir, :locals => { :files => files }, :layout => false
 
@@ -245,7 +245,7 @@ __END__
 @@ recent
 %label Recent
 %ul
-  - Blog.all.sort_by(&:ctime).reverse[(0..(config['recent'] - 1))].each do |blog|
+  - Blog.all.sort_by(&:ctime).reverse[(0..(recent - 1))].each do |blog|
     %li
       %a{ :href => path_for(blog)}= blog.title
 
