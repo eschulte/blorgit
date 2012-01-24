@@ -237,7 +237,7 @@ __END__
       %div{:id=> File.basename(item['html'], File.extname(item['html']))}= haml :html, :locals => { :file => item['html'] }, :layout => false
 
 @@ search
-%form{ :action => path_for('.search'), :method => :post, :id => :search }
+%form{ :action => path_for('.search'), :method => :post, :id => :search_form }
   %ul
     %li
       %input{ :id => :query, :name => :query, :type => :text, :size => 12 }
