@@ -208,7 +208,7 @@ __END__
 
 @@ titlebar
 #title_pre
-#title
+#title_text
   %a{ :href => path_for(''), :title => 'home' }= config['title']
 #title_post
 #searchbox= haml :search, :layout => false
