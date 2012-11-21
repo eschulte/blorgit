@@ -205,12 +205,17 @@ __END__
       #insides
         #sidebar= render(:haml, :sidebar, :locals => { :files => @files }, :layout => false)
         #contents= yield
+      #footer= render(:haml, :footer, :layout => false)
 
 @@ titlebar
 #title_pre
+- if (config['title_pre'] and File.exists? config['title_pre'])
+  %div{:id=> File.basename(config['title_pre'], File.extname(config['title_pre']))}= haml :html, :locals => { :file => config['title_pre'] }, :layout => false
 #title_text
   %a{ :href => path_for(''), :title => 'home' }= config['title']
 #title_post
+- if (config['title_post'] and File.exists? config['title_post'])
+  %div{:id=> File.basename(config['title_post'], File.extname(config['title_post']))}= haml :html, :locals => { :file => config['title_post'] }, :layout => false
 #searchbox= haml :search, :layout => false
 - if @blog
   #actions
@@ -365,5 +370,9 @@ __END__
     ?
   %input{ :id => 'submit', :name => 'submit', :value => 'create', :type => 'submit' }
   %a{ :href => path_for('/') } cancel
+
+@@ footer
+- if (config['footer'] and File.exists? config['footer'])
+  %div{:id=> File.basename(config['footer'], File.extname(config['footer']))}= haml :html, :locals => { :file => config['footer'] }, :layout => false
 
 -#end-of-file # this is for Sinatra-Mode (http://github.com/eschulte/rinari/tree/sinatra)
